@@ -136,3 +136,6 @@ dmypy.json
 *.fls
 *.out
 *.synctex.gz
+
+# Other
+.env

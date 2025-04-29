@@ -1,0 +1,12 @@
+arxiv
+langchain
+langchain-community
+sentencepiece
+transformers
+sentence-transformers
+faiss-cpu
+accelerate
+bitsandbytes
+huggingface-hub
+semanticscholar
+python-dotenv
