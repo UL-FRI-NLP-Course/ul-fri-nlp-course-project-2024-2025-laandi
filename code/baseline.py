@@ -13,6 +13,8 @@ from semanticscholar import SemanticScholar
 from IPython.display import display_markdown
 from dotenv import load_dotenv
 import os
+import requests
+import re
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.1"
@@ -26,7 +28,8 @@ login(os.getenv("HUGGINGFACE_API_KEY"))
 def fetch_papers(query, max_papers=5, sources=None):
     papers_arxiv = fetch_arxiv_papers(query, max_papers)
     papers_semantic = fetch_semantic_scholar_papers(query, max_papers)
-    papers = papers_arxiv + papers_semantic
+    papers_googlescholar = fetch_googlescholar_papers(query, max_papers)
+    papers = papers_arxiv + papers_semantic + papers_googlescholar
 
     return papers
 
@@ -67,6 +70,48 @@ def fetch_semantic_scholar_papers(query, max_results=5):
         })
 
     return results
+
+# GoogleScholar
+def fetch_googlescholar_papers(query, max_results=5):
+    api_key = "d8e4d5f1ff9b84c59ade522248896b346f60a9d8f191e9a9e7634ab65fc49dd5"
+    search_url = "https://serpapi.com/search"
+    params = {
+        "q": query,
+        "engine": "google_scholar",
+        "api_key": api_key
+    }
+
+    response = requests.get(search_url, params=params)
+    data = response.json()
+
+
+    papers = []
+    for result in data['organic_results']:
+        # Extract authors from publication_info['summary'] if available
+        authors = "Unknown"  # Default value
+        publication_summary = result.get('publication_info', {}).get('summary', '')
+        authors_match = re.search(r"([A-Za-z,]+(?:\s[A-Za-z]+)+)\s-\s", publication_summary)
+        if authors_match:
+            authors = authors_match.group(1)
+
+        # Extract the published year from summary or snippet
+        published = "Unknown"  # Default value
+        published_match = re.search(r"(\d{4})", publication_summary) or re.search(r"(\d{4})", result.get('snippet', ''))
+        if published_match:
+            published = published_match.group(1)
+
+        papers.append({
+            "title": result['title'],
+            "summary": result['snippet'],
+            "authors": authors,
+            "published": published,
+            "url": result['link'],
+            "source": "GoogleScholar"
+        })
+
+    return papers
+
+
 
 # TODO: Add more sources
 
