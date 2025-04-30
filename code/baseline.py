@@ -15,6 +15,9 @@ from dotenv import load_dotenv
 import os
 import requests
 import re
+from parsel import Selector
+from playwright.sync_api import sync_playwright
+import json
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 LLM_MODEL = "mistralai/Mistral-7B-Instruct-v0.1"
@@ -29,7 +32,8 @@ def fetch_papers(query, max_papers=5, sources=None):
     papers_arxiv = fetch_arxiv_papers(query, max_papers)
     papers_semantic = fetch_semantic_scholar_papers(query, max_papers)
     papers_googlescholar = fetch_googlescholar_papers(query, max_papers)
-    papers = papers_arxiv + papers_semantic + papers_googlescholar
+    papers_researchgate = fetch_researchgate_papers(query, max_papers)
+    papers = papers_arxiv + papers_semantic + papers_googlescholar + papers_researchgate
 
     return papers
 
@@ -111,6 +115,38 @@ def fetch_googlescholar_papers(query, max_results=5):
 
     return papers
 
+
+def fetch_researchgate_papers(query: str, max_papers: int = 5):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True, slow_mo=50)
+        page = browser.new_page(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36")
+        
+        # Only go to the first page
+        page.goto(f"https://www.researchgate.net/search/publication?q={query}&page=1")
+        page.wait_for_timeout(2000)  # Wait for page to load
+        selector = Selector(text=page.content())
+
+        papers = []
+        for publication in selector.css(".nova-legacy-c-card__body--spacing-inherit")[:max_papers]:
+            title = publication.css(".nova-legacy-v-publication-item__title .nova-legacy-e-link--theme-bare::text").get()
+            if not title:
+                continue
+                
+            title = title.title()
+            title_link = f'https://www.researchgate.net{publication.css(".nova-legacy-v-publication-item__title .nova-legacy-e-link--theme-bare::attr(href)").get()}'
+            publication_date = publication.css(".nova-legacy-v-publication-item__meta-data-item:nth-child(1) span::text").get()
+            authors = publication.css(".nova-legacy-v-person-inline-item__fullname::text").getall()
+
+            papers.append({
+                "title": title,
+                "url": title_link,
+                "authors": authors,
+                "published": publication_date,
+                "source": "ResearchGate"
+            })
+
+        browser.close()
+        return papers
 
 
 # TODO: Add more sources

@@ -10,3 +10,5 @@ bitsandbytes
 huggingface-hub
 semanticscholar
 python-dotenv
+parsel
+playwright
