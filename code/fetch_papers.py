@@ -22,10 +22,11 @@ def fetch_and_save_papers(keywords, max_docs=5):
         query=keywords,
         max_papers=max_docs,
         arxiv=True,
-        semantic_scholar=True,
-        googlescholar=True,
+        semantic_scholar=False,
+        googlescholar=False,
         researchgate=False,
-        core=True
+        core=False,
+        openalex=True
     )
     
     print(f"Fetched {len(papers)} papers related to '{keywords}'")

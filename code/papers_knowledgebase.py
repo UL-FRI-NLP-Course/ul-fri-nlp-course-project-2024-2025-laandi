@@ -17,19 +17,19 @@ import json
 from dotenv import load_dotenv
 
 load_dotenv()
-EMBEDDING_MODEL=HuggingFaceEmbeddings(model_name="../../models/sentence-transformer")
+EMBEDDING_MODEL=HuggingFaceEmbeddings(model_name="/d/hpc/projects/onj_fri/laandi/models/sentence-transformer")
 
 # ArXiv
 def fetch_arxiv_papers(query, max_results=5):
     client = arxiv.Client()
-    search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.Relevance)
+    search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
     papers = []
     for result in client.results(search):
         papers.append({
             "title": result.title,
             "summary": result.summary,
             "authors": [author.name for author in result.authors],
-            "published": str(result.published.date()),
+            "published": str(result.published.date()), #example '2017-03-04'
             "url": result.entry_id, # URL to the arxiv page
             "pdf_url": result.pdf_url, # URL to the actual paper
             "source": "arXiv"
@@ -64,7 +64,8 @@ def fetch_googlescholar_papers(query, max_results=5):
     params = {
         "q": query,
         "engine": "google_scholar",
-        "api_key": api_key
+        "api_key": api_key,
+        "as_ylo": "2022",
     }
 
     response = requests.get(search_url, params=params)
@@ -72,28 +73,29 @@ def fetch_googlescholar_papers(query, max_results=5):
 
 
     papers = []
-    for result in data['organic_results']:
-        # Extract authors from publication_info['summary'] if available
-        authors = "Unknown"  # Default value
-        publication_summary = result.get('publication_info', {}).get('summary', '')
-        authors_match = re.search(r"([A-Za-z,]+(?:\s[A-Za-z]+)+)\s-\s", publication_summary)
-        if authors_match:
-            authors = authors_match.group(1)
+    if data.get('organic_results') is not None:
+        for result in data.get('organic_results'):
+            # Extract authors from publication_info['summary'] if available
+            authors = "Unknown"  # Default value
+            publication_summary = result.get('publication_info', {}).get('summary', '')
+            authors_match = re.search(r"([A-Za-z,]+(?:\s[A-Za-z]+)+)\s-\s", publication_summary)
+            if authors_match:
+                authors = authors_match.group(1)
 
-        # Extract the published year from summary or snippet
-        published = "Unknown"  # Default value
-        published_match = re.search(r"(\d{4})", publication_summary) or re.search(r"(\d{4})", result.get('snippet', ''))
-        if published_match:
-            published = published_match.group(1)
+            # Extract the published year from summary or snippet
+            published = "Unknown"  # Default value
+            published_match = re.search(r"(\d{4})", publication_summary) or re.search(r"(\d{4})", result.get('snippet', ''))
+            if published_match:
+                published = published_match.group(1)
 
-        papers.append({
-            "title": result['title'],
-            "summary": result['snippet'],
-            "authors": authors,
-            "published": published,
-            "url": result['link'],
-            "source": "GoogleScholar"
-        })
+            papers.append({
+                "title": result.get('title'),
+                "summary": result.get('snippet'),
+                "authors": authors,
+                "published": published, #year
+                "url": result.get('link'),
+                "source": "GoogleScholar"
+            })
 
     return papers
 
@@ -139,6 +141,9 @@ def fetch_core_papers(query: str, max_papers: int = 5):
         "Authorization": f"Bearer {CORE_API_KEY}",
         "Content-Type": "application/json"
     }
+
+    date = "yearPublished:2022 OR yearPublished:2023 OR yearPublished:2024 OR yearPublished:2025"
+    query = query + " " + date
     
     params = {
         "q": query,
@@ -193,15 +198,73 @@ def fetch_core_papers(query: str, max_papers: int = 5):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching from CORE API: {e}")
         return []
+
+def decode_abstract(abstract_inverted_index):
+    if not abstract_inverted_index:
+        return None
+    word_list = [''] * (max([max(positions) for positions in abstract_inverted_index.values()]) + 1)
+    for word, positions in abstract_inverted_index.items():
+        for pos in positions:
+            word_list[pos] = word
+    return ' '.join(word_list)
+
+def fetch_openalex_papers(query: str, max_papers: int = 5):
+    
+    year = 2022
+    url = (
+            f"https://api.openalex.org/works"
+            f"?filter=title.search:{query},from_publication_date:{year}-01-01"
+        )
+      
+    try:
+        # Search for concept ID - broader
+        concept_id = requests.get(f"https://api.openalex.org/concepts?search={query}")
+        response.raise_for_status()
+        data = response.json()
+
+        # Search for articles with concept ID
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        papers = []
+        for result in data.get("results", [])[:max_papers]:
+            # Extract basic information
+            title = result.get("title", "No title available")
+            abstract = decode_abstract(result.get('abstract_inverted_index'))
+            year = result.get("publication_year", "Unknown")
+            doi = result.get('doi', result.get('id'))
+            
+            # Extract authors
+            authors = []
+            for author in result.get("authorships", []):
+                authors.append(author["author"]["display_name"])
+            
+            papers.append({
+                "title": title,
+                "summary": abstract,
+                "authors": authors if authors else ["Unknown"],
+                "published": str(year),
+                "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
+                "pdf_url": pdf_url,
+                "source": "CORE"
+            })
+            
+        return papers
+    
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching from OpenAlex: {e}")
+        return []
     
 def fetch_papers(
         query, 
-        max_papers=5, 
+        max_papers=2, 
         arxiv=True, 
         semantic_scholar=False, 
         googlescholar=True, 
         researchgate=True, 
-        core=True
+        core=True,
+        openalex=True
     ):
     papers = []
     if not any([arxiv, semantic_scholar, googlescholar, researchgate, core]):

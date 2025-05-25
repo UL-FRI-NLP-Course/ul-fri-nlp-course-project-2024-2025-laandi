@@ -17,7 +17,7 @@ class DynamicRAG:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.MODEL_NAME = "../../models/mistral-7b"
+        self.MODEL_NAME = "/d/hpc/projects/onj_fri/laandi/models/mistral-7b"
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
         self.model = AutoModelForCausalLM.from_pretrained(self.MODEL_NAME, device_map="auto")
@@ -96,6 +96,7 @@ class DynamicRAG:
                 keywords = kw_model.extract_keywords(question, keyphrase_ngram_range=(1, 2), top_n=5)
                 keywords = " ".join([kw[0] for kw in keywords])
             documents = papers_knowledgebase.format_papers_into_documents(papers_knowledgebase.fetch_papers(keywords, researchgate=False))
+            print(documents)
             papers_knowledgebase.update_vectorstore(vectorstore, documents)
         answer = self.generate(question, vectorstore)
         display_markdown(answer, raw=True)
