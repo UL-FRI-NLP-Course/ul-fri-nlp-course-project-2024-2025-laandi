@@ -133,6 +133,60 @@ Similarly to the amount of papers being fetched, the k parameter in the FAISS ve
 \subsection*{Conversational agent and the pipeline}
 The conversational agent is implemented using the LangChain library, which allows us to easily create a pipeline that can handle the queries and return the answers based on the vectorized data.
 
+\section*{Methodology - Anja}
+
+\subsection*{Baseline Model Implementation}
+
+In the sample work of our proof-of-concept model setup, the focus was mainly on the various resources and ways of implementing them.
+
+While the baseline implementation only included simple and one model testing, it is important to highlight the different methods that are important in this situation and context.
+
+\subsection*{Database}
+
+\subsubsection*{Creation: papers, resources and fetching}
+
+We've managed to group together and take use of many knowledge bases of academic research and compile them into the sample RAG pipeline that manages to access these papers in a keyword fashion and give answers enriched with these resources.
+
+In implementing many of these papers, that our Python script fetches, they are then converted into vectors, and chosen based on similarity, using the FAISS library.
+
+There are many ways of obtaining academic papers that have been found and in turn implemented in the test of the capabilities of the pipeline.
+
+Many of the papers are possible to be obtained and have public API interfaces that give much leeway in how and what we search.
+
+Popular and massive academic libraries such as Arxiv and Semantic Scholar already have available Python libraries allowing us to seamlessly implement them and their resources into our project.
+
+While other sites such as GoogleScholar and CORE have publicly open API interfaces still making it possible to quickly fetch the data.
+
+While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping.
+
+Integrating the Playwright library and some simple web scraping methods makes it possible to also implement these papers into the vectorization of this data.
+
+\subsubsection*{Dataset Details}
+how many ppaers, from how many keywords etc
+
+\subsection*{Expanding the Baseline with Database}
+
+The vectorization of the data is done using the FAISS library, which allows us to efficiently search and retrieve similar papers based on the keywords given in the query.
+
+The embedding model is also an aspect not that much highlighted in our testing case, but something to be researched upon further, given the importance of our RAG data.
+
+Our implementation also scores different specific hyperparameters that may be important to find the difference between.
+
+Similarly to the amount of papers being fetched, the k parameter in the FAISS vectorization is something that could massively impact the result and effectiveness of the data being implemented to our answers.
+
+The k parameter is the amount of papers that are being fetched from the vectorized data and used to answer the question.
+
+This is something that could be further analyzed and tested, as it is a very important part of the pipeline.
+
+\subsection*{On-Demand Paper Fetching}
+
+The user can choose the option to fetch additional papers on demand....
+
+\subsection*{Prompt Design}
+
+...
+
+
 \section*{Analysis}
 For the simple demonstration of the capabilities of running a model that incorporates RAG techniques with scientific papers, we have made a short testing suite based on some sample questions one could maybe pose when researching for a topic in an academic setting. Because the baseline implementation lacks proper testing and fine-tuning, while pinning the results against proper, in-use, online AI agents, we've appended to the query the following: "Answer the question shortly". In this way, the agents will respond in shorter answers more uniform to our baseline implementation, given that in the opposite case, we get rather large and formatted answers which do not quite align with our results for our baseline implementation.
 
