@@ -21,12 +21,12 @@ def fetch_and_save_papers(keywords, max_docs=5):
     papers = fetch_papers(
         query=keywords,
         max_papers=max_docs,
-        arxiv=True,
+        arxiv=False,
         semantic_scholar=False,
         googlescholar=False,
         researchgate=False,
         core=False,
-        openalex=False,
+        openalex=True,
         acl=False
     )
     

@@ -237,7 +237,62 @@ def decode_abstract(abstract_inverted_index):
             word_list[pos] = word
     return ' '.join(word_list)
 
-def fetch_openalex_papers(query: str, max_papers: int = 5):
+def fetch_openalex_papers(query, max_papers=5):
+    per_page = 200
+    max_pages = None
+    endpoint = "https://api.openalex.org/works"
+    cursor = "*"
+    all_results = []
+    count = 0
+
+    while cursor and (max_pages is None or count < max_pages):
+        params = {
+            "filter": "concepts.id:C204321447,from_publication_date:2023-01-01,cited_by_count:>10",  # NLP concept ID in OpenAlex
+            "per-page": per_page,
+            "cursor": cursor,
+        }
+        response = requests.get(endpoint, params=params)
+        data = response.json()
+
+        results = data.get("results", [])
+        all_results.extend(results)
+
+        cursor = data.get("meta", {}).get("next_cursor")
+        count += 1
+
+        if not results or not cursor:
+            break
+
+    papers = []
+    for result in all_results:
+        try:
+            # Extract basic information
+            title = result.get("title", "No title available")
+            abstract = decode_abstract(result.get('abstract_inverted_index'))
+            if not abstract:
+                continue
+            year = result.get("publication_year", "Unknown")
+            doi = result.get('doi', result.get('id'))
+            
+            # Extract authors
+            authors = []
+            for author in result.get("authorships", []):
+                authors.append(author["author"]["display_name"])
+            
+            papers.append({
+                "title": title,
+                "summary": abstract,
+                "authors": authors if authors else ["Unknown"],
+                "published": str(year),
+                "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
+                "source": "OpenAlex"
+            })
+        except Exception as e:
+            print(f"Error processing result: {e}")
+            continue
+    return papers
+
+def fetch_openalex_papers2(query: str, max_papers: int = 5):
     
     year = 2022
     url = (
@@ -258,26 +313,29 @@ def fetch_openalex_papers(query: str, max_papers: int = 5):
         
         papers = []
         for result in data.get("results", [])[:max_papers]:
-            # Extract basic information
-            title = result.get("title", "No title available")
-            abstract = decode_abstract(result.get('abstract_inverted_index'))
-            year = result.get("publication_year", "Unknown")
-            doi = result.get('doi', result.get('id'))
-            
-            # Extract authors
-            authors = []
-            for author in result.get("authorships", []):
-                authors.append(author["author"]["display_name"])
-            
-            papers.append({
-                "title": title,
-                "summary": abstract,
-                "authors": authors if authors else ["Unknown"],
-                "published": str(year),
-                "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
-                "pdf_url": pdf_url,
-                "source": "CORE"
-            })
+            try:
+                # Extract basic information
+                title = result.get("title", "No title available")
+                abstract = decode_abstract(result.get('abstract_inverted_index'))
+                year = result.get("publication_year", "Unknown")
+                doi = result.get('doi', result.get('id'))
+                
+                # Extract authors
+                authors = []
+                for author in result.get("authorships", []):
+                    authors.append(author["author"]["display_name"])
+                
+                papers.append({
+                    "title": title,
+                    "summary": abstract,
+                    "authors": authors if authors else ["Unknown"],
+                    "published": str(year),
+                    "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
+                    "source": "OpenAlex"
+                })
+            except Exception as e:
+                print(f"Error processing result: {e}")
+                continue
             
         return papers
     
@@ -340,7 +398,7 @@ def fetch_papers(
         papers.extend(papers_core)
     if openalex:
         papers_openalex = fetch_openalex_papers(query, max_papers)
-        papers.extend(papers_core)
+        papers.extend(papers_openalex)
     if acl:
         papers_acl = fetch_acl_papers(query, max_papers)
         papers.extend(papers_acl)
