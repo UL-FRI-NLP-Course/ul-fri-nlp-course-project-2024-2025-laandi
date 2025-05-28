@@ -26,7 +26,8 @@ def fetch_and_save_papers(keywords, max_docs=5):
         googlescholar=False,
         researchgate=False,
         core=False,
-        openalex=True
+        openalex=False,
+        acl=False
     )
     
     print(f"Fetched {len(papers)} papers related to '{keywords}'")

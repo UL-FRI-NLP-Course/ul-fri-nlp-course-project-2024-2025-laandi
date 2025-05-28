@@ -140,3 +140,4 @@ dmypy.json
 # Other
 .env
 knowledgebase/
+knowledgebase2/

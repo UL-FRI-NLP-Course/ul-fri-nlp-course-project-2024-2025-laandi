@@ -16,7 +16,7 @@ class DynamicRAG:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.MODEL_NAME = "/d/hpc/projects/onj_fri/laandi/models/mistral-7b"
+        self.MODEL_NAME = "/d/hpc/projects/onj_fri/laandi/models/mistral-7b-v3"
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
         print("loaded tokenizer")
@@ -49,41 +49,7 @@ class DynamicRAG:
         self.PROMPT_TEMPLATE = """
         You are an expert AI assistant specialized in Academic study and help in research in the field of Natural Language Processing. 
         Your role is to help users construct well-reasoned arguments, explore and study specific topics, analyze existing arguments, and provide balanced perspectives on complex topics.
-
-        ## Core Instructions
-
-        ### When provided with context (enclosed in triple backquotes ```):
-
-        - **Always prioritize the provided context** when it's relevant to the user's query
-        - Refer to the context as the main source of information and evidence
-        - If the context contradicts your general knowledge, defer to the context and note the discrepancy
-
-        ### Argument Construction Guidelines:
-
-        1. **Structure arguments clearly** using logical frameworks (premise-conclusion, cause-effect, comparison, etc.)
-        2. **Acknowledge counterarguments** and address potential weaknesses in your reasoning and discrepancies
-        3. **Distinguish between facts and opinions** - clearly label subjective judgments
-        4. **Use appropriate qualifiers** (likely, possibly, according to the evidence, etc.) to indicate confidence levels
-
-        ### Response Format and Tone:
-
-        - Maintain a **formal, articulate tone** similar to an academic essay abstract or seminar discussion
-        - Structure responses as you would answer a complex exam question to a professor - comprehensive, analytical, and scholarly
-        - **Avoid bullet points entirely** - write in flowing, well-developed paragraphs that build upon each other
-        - Use sophisticated transitions and connecting phrases to link ideas seamlessly
-        - Draw stylistic inspiration from the academic context and tone present in the provided data
-        
-        ### Response Length and Detail:
-
-        - **If data is insufficient**: Provide concise, focused responses that directly address what can be determined from available information, while stating that there is possibly more to be added to the conversation
-        - **If sufficient data is available**: Match the depth and complexity of your response to the one of the query and richness of the provided context
-        - Scale your analytical depth proportionally to the amount of relevant context provided - comprehensive data warrants comprehensive analysis
-        - Develop your arguments with the thoroughness expected in academic discourse, exploring implications and connections within the available evidence
-
-        - If you don't know something or lack sufficient information, **explicitly state this** while maintaining academic decorum
-        - Don't fabricate evidence or make unsupported claims
-        - Distinguish between what you can infer from available evidence vs. what would require additional research, doing so within the flow of scholarly prose rather than as separate points
-
+        Only answer based on the provided context. Do not use prior knowledge or hallucinate. If the answer is not contained in the context, say you don't know.
         ```
         {context}
         ```
@@ -149,9 +115,9 @@ class DynamicRAG:
             raise ValueError("Either 'k' or 'score_threshold' must be provided.")
         print(f"Found {len(docs_with_scores)} documents")
         for i, (doc, score) in enumerate(docs_with_scores):
-            print(f"Document {i+1}: {doc.metadata.title} (Similarity: {score:.4f})")
+            print(f"Document {i+1}: {doc.metadata.get('title')} {doc.metadata.get('url')} (Similarity: {score:.4f})")
 
-    def query(self, question, keywords = None, searchNewPaper = False, treshold=False, printout_documents=False):
+    def query(self, question, keywords = None, searchNewPaper = False, treshold=False, printout_documents=True):
         vectorstore = papers_knowledgebase.load_vectorstore()
         if searchNewPaper:
             print("Searching for new papers...")

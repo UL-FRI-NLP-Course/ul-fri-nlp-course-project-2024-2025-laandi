@@ -1,5 +1,6 @@
 import arxiv
 from semanticscholar import SemanticScholar
+from acl_anthology import Anthology
 # For Google Scholar and CORE APIs
 import requests
 # Regex
@@ -21,15 +22,43 @@ EMBEDDING_MODEL=HuggingFaceEmbeddings(model_name="/d/hpc/projects/onj_fri/laandi
 
 # ArXiv
 def fetch_arxiv_papers(query, max_results=5):
-    client = arxiv.Client()
-    search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
+    # client = arxiv.Client()
+    # search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
+    # papers = []
+    # for result in client.results(search):
+    #     papers.append({
+    #         "title": result.title,
+    #         "summary": result.summary,
+    #         "authors": [author.name for author in result.authors],
+    #         "published": str(result.published.date()), #example '2017-03-04'
+    #         "url": result.entry_id, # URL to the arxiv page
+    #         "pdf_url": result.pdf_url, # URL to the actual paper
+    #         "source": "arXiv"
+    #     })
+    # return papers
+
+    ## Testing with category
+
+    search = arxiv.Search(query="cat:cs.CL", max_results=5000, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
+    results = None
+    try:
+        results = list(search.results())  # Pull all results at once (until arXiv stops)
+    except Exception as e:
+        print("Reached the end of arXiv results.")
+        return []
+
     papers = []
-    for result in client.results(search):
+    for result in results:
+        date_ = result.published.date() if result.published else None
+        year = date_.year if date_ else "Unknown"
+        year = int(year) if year != "Unknown" else "Unknown"
+        if year < 2023:
+            continue
         papers.append({
             "title": result.title,
             "summary": result.summary,
             "authors": [author.name for author in result.authors],
-            "published": str(result.published.date()), #example '2017-03-04'
+            "published": year, #example '2017-03-04'
             "url": result.entry_id, # URL to the arxiv page
             "pdf_url": result.pdf_url, # URL to the actual paper
             "source": "arXiv"
@@ -255,6 +284,28 @@ def fetch_openalex_papers(query: str, max_papers: int = 5):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching from OpenAlex: {e}")
         return []
+
+def fetch_acl_papers(query: str, max_papers: int = 5):
+    anthology = Anthology.from_repo()
+    acl_papers = list(anthology.papers())
+
+    papers = []
+    for paper in acl_papers:
+        try:
+            if paper.abstract is not None and int(paper.year) > 2022:
+                papers.append({
+                    "title": str(paper.title),
+                    "summary": str(paper.abstract),
+                    "authors": [author.name.first + ' ' + author.name.last for author in paper.authors],
+                    "published": str(paper.year),
+                    "url": paper.web_url,
+                    "source": "ACL"
+                })
+        except Exception as e:
+            print(f"Error processing ACL paper {paper.title}: {e}")
+            continue
+    
+    return papers
     
 def fetch_papers(
         query, 
@@ -264,10 +315,11 @@ def fetch_papers(
         googlescholar=True, 
         researchgate=True, 
         core=True,
-        openalex=True
+        openalex=True,
+        acl=True
     ):
     papers = []
-    if not any([arxiv, semantic_scholar, googlescholar, researchgate, core]):
+    if not any([arxiv, semantic_scholar, googlescholar, researchgate, core, openalex, acl]):
         raise ValueError("At least one source must be selected.")
     if max_papers <= 0:
         raise ValueError("max_papers must be greater than 0.")
@@ -286,6 +338,12 @@ def fetch_papers(
     if core:
         papers_core = fetch_core_papers(query, max_papers)
         papers.extend(papers_core)
+    if openalex:
+        papers_openalex = fetch_openalex_papers(query, max_papers)
+        papers.extend(papers_core)
+    if acl:
+        papers_acl = fetch_acl_papers(query, max_papers)
+        papers.extend(papers_acl)
     
     return papers
 
@@ -299,7 +357,7 @@ def doc_hash(doc: Document) -> str:
     # m.update(json.dumps(doc.metadata, sort_keys=True).encode("utf-8"))
     return m.hexdigest()
 
-def create_vectorstore(documents, persist_directory="./knowledgebase"):
+def create_vectorstore(documents, persist_directory="./knowledgebase2"):
     embedding = EMBEDDING_MODEL
     vectorstore = FAISS.from_documents(
         documents=documents,
@@ -315,7 +373,7 @@ def create_vectorstore(documents, persist_directory="./knowledgebase"):
     print("stored to local")
     return vectorstore
 
-def load_vectorstore(persist_directory="./knowledgebase"):
+def load_vectorstore(persist_directory="./knowledgebase2"):
     embedding = EMBEDDING_MODEL
     if bool(os.listdir(persist_directory)):
         print("returned true")
@@ -327,7 +385,7 @@ def load_vectorstore(persist_directory="./knowledgebase"):
         print("New vectorstore created as it was not found.")
     return vectorstore
 
-def load_document_hashes(persist_directory="./knowledgebase/document_hashes"):
+def load_document_hashes(persist_directory="./knowledgebase2/document_hashes"):
     """Load the set of document hashes that have already been embedded."""
     hash_file = os.path.join(persist_directory, "document_hashes.json")
     if os.path.exists(hash_file):
@@ -339,7 +397,7 @@ def load_document_hashes(persist_directory="./knowledgebase/document_hashes"):
             return set()
     return set()
 
-def save_document_hashes(hashes, persist_directory="./knowledgebase/document_hashes"):
+def save_document_hashes(hashes, persist_directory="./knowledgebase2/document_hashes"):
     """Save the set of document hashes that have been embedded."""
     # Ensure the directory exists
     os.makedirs(persist_directory, exist_ok=True)
@@ -350,7 +408,7 @@ def save_document_hashes(hashes, persist_directory="./knowledgebase/document_has
     except Exception as e:
         print(f"Error saving document hashes: {e}")
 
-def update_vectorstore(db, documents, persist_directory="./knowledgebase", skip_duplicates=True):
+def update_vectorstore(db, documents, persist_directory="./knowledgebase2", skip_duplicates=True):
     """
     Update the vectorstore with new documents, skipping duplicates if requested.
     

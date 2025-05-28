@@ -218,7 +218,7 @@ nlp_keywords = [
     "CoNLL datasets",
     "OntoNotes",
     "CommonsenseQA",
-    "Winograd Schema Challenge"
+    "Winograd Schema Challenge",
 
     # Applications
     "information retrieval",
@@ -254,7 +254,7 @@ nlp_keywords = [
     "Legal NLP",
     "Social Media NLP",
     "NLP for education",
-    "intelligent tutoring systems"
+    "intelligent tutoring systems",
 
     # Advanced Topics
     "Ethics in NLP",

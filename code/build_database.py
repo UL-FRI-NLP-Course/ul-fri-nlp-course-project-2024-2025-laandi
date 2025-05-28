@@ -4,13 +4,19 @@ import json
 with open("nlp_tasks.json", "r") as f:
     nlp_keywords = json.load(f)
 
-# Query every keyword on its own
-for i in range(len(nlp_keywords)):
+# # Query every keyword on its own
+# for i in range(len(nlp_keywords)):
     
-    fetch_and_save_papers(
-        keywords=nlp_keywords[i],
-        max_docs=50
-    )
+#     fetch_and_save_papers(
+#         keywords=nlp_keywords[i],
+#         max_docs=50
+#     )
+
+   
+fetch_and_save_papers(
+    keywords=nlp_keywords,
+    max_docs=50
+)
 
 
 # # Or query chunks of keywords
