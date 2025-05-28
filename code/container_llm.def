@@ -1,0 +1,31 @@
+Bootstrap: docker
+From: nvidia/cuda:12.4.1-devel-ubuntu22.04
+
+%post
+    apt-get update && apt-get install -y python3 python3-pip git gcc
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+    pip3 install --upgrade pip
+    pip3 install torch
+    pip3 install numpy pandas scikit-learn
+    pip3 install trl transformers accelerate
+    pip3 install git+https://github.com/huggingface/peft.git
+    pip3 install huggingface-hub
+    pip3 install datasets bitsandbytes sentence-transformers
+    pip3 install beautifulsoup4 lxml
+    pip3 install arxiv semanticscholar
+    pip3 install sentencepiece
+    pip3 install faiss-cpu
+    pip3 install python-dotenv
+    pip3 install ipython
+    pip3 install -U langchain langchain-community
+    pip3 install parsel
+    pip3 install playwright==1.51.0 && \
+    playwright install --with-deps
+    pip3 install keybert
+
+%environment
+    export PATH=/usr/local/bin:$PATH
+
+%runscript
+    echo "Running script $*"
+    exec python3 "$@"
