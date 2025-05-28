@@ -101,7 +101,7 @@ Pokhrel et al. \cite{Pokhrel2025} explore the integration of AI and web scraping
 
 The concept of leveraging web-scraped data through RAG was explored by Kanataria et al. \cite{Kanataria2024}, where authors proposed a novel framework that integrates RAG techniques with large language models (LLMs) like Llama 3, Mistral, and Gemini, enhancing the process of data retrieval and summarization from online sources. This framework combines web scraping, embedding models, and FAISS for efficient indexing, ensuring the delivery of real-time, personalized information. Our goal is to combine this approach with the one suggested by  Pokhrel et al. \cite{Pokhrel2025}, allowing the chatbot to dynamically retrieve and integrate information from any user-provided website, as well as from general web scraping.
 
-\section*{Methods}
+\section*{Methodology}
 
 In the sample work of our proof-of-concept model setup, the focus was mainly on the various resources and ways of implementing them. We've managed to group together and take use of many knowledge bases of academic research and compile the into the sample RAG pipeline that manages to access these papers in a keyword fashion and give answers enriched with these resources.
 
@@ -115,6 +115,9 @@ Popular and massive academic libraries such as Arxiv and Semantic Scholar alread
 
 While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping. Integrating the Playwright library and some simple web scraping methods, makes it possible to also implement these papers into the vectorization of this data.
 
+\subsection*{Vectorization and FAISS}
+The vectorization of the data is done using the FAISS library, which allows us to efficiently search and retrieve similar papers based on the keywords given in the query.
+
 \subsection*{Models, embeddings and similarity}
 
 While the baseline implementation only included simple and one model testing, it is important to highlight the different methods that are important in this situation and context.
@@ -126,6 +129,9 @@ Our implementation also scores different specific hyperparameters that may be im
 For example the amount of the papers being fetched from remote resources are currently limited, to highlight rapid development of the model pipeline. While the amount currently is very much useful to be low, it is an important resource for our model that should be analyzed further and it's importance to the final result.
 
 Similarly to the amount of papers being fetched, the k parameter in the FAISS vectorization is something that could massively impact the result and effectiveness of the data being implement to our answers . The k parameter is the amount of papers that are being fetched from the vectorized data and used to answer the question. This is something that could be further analyzed and tested, as it is a very important part of the pipeline.
+
+\subsection*{Conversational agent and the pipeline}
+The conversational agent is implemented using the LangChain library, which allows us to easily create a pipeline that can handle the queries and return the answers based on the vectorized data.
 
 \section*{Analysis}
 For the simple demonstration of the capabilities of running a model that incorporates RAG techniques with scientific papers, we have made a short testing suite based on some sample questions one could maybe pose when researching for a topic in an academic setting. Because the baseline implementation lacks proper testing and fine-tuning, while pinning the results against proper, in-use, online AI agents, we've appended to the query the following: "Answer the question shortly". In this way, the agents will respond in shorter answers more uniform to our baseline implementation, given that in the opposite case, we get rather large and formatted answers which do not quite align with our results for our baseline implementation.
@@ -163,6 +169,27 @@ Keep in mind that the question was posed to the other agents prefixed with "Answ
 	\item[Baseline] Diagrams are utilized in optimizing business processes to provide a visual representation of the process flow. This allows for easier analysis and identification of bottlenecks or inefficiencies in the process. Additionally, diagrams can help to standardize the process and ensure consistency across different stages of the process.
 \end{description}
 
+\section*{Evaluation}
+The evaluation of our model is: etc...
+
+\subsection*{Baseline model evaluation}
+Evaluation of our model with it's starting template and without searching for new papers, using the data saved on the vectorstore
+
+\subsection*{Evaluation of the model, while searching for new papers}
+Evaluation of our model with the new papers, using the data saved on the vectorstore and searching for new papers based on the keywords given in the query.
+
+\subsection*{Comparison with other agents}
+In this section, we compare our model's performance with other conversational agents like ChatGPT and Claude.
+
+\subsection*{Comparing and discussing different possible system prompts}
+In this section, we discuss the impact of different system prompts on the performance of our conversational agent.
+
+\subsection*{Discussion of the results}
+The results of our testing suite show that our model is able to provide relevant and accurate answers to the questions posed, while also being able to search for new papers and integrate them into the answers.
+
+\section*{Conclusion}
+The conclusion.
+
 \section*{Future work}
 
 Although it is clear that our model got significant help, it shows promising results of our findings - searching and integrating proper papers into the agent pipeline gives significant importance to answers that academics would expect.
@@ -171,132 +198,11 @@ The next obvious step is to simply make the agent help himself, and automate the
 
 Storing and thinking of better ways of analyzing these papers is also a proper view to take. Taking a step into the long term use and further improvements of the model, it could learn and store facts and papers it has deemed important for future sort of caching of knowledge and improving the vision it could have on the search.
 
-\section*{Lorem Ipsum}
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam blandit dictum facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam convallis tellus velit, quis ornare ipsum aliquam id. Maecenas tempus mauris sit amet libero elementum eleifend. Nulla nunc orci, consectetur non consequat ac, consequat non nisl. Aenean vitae dui nec ex fringilla malesuada. Proin elit libero, faucibus eget neque quis, condimentum laoreet urna. Etiam at nunc quis felis pulvinar dignissim. Phasellus turpis turpis, vestibulum eget imperdiet in, molestie eget neque. Curabitur quis ante sed nunc varius dictum non quis nisl. Donec nec lobortis velit. Ut cursus, libero efficitur dictum imperdiet, odio mi fermentum dui, id vulputate metus velit sit amet risus.
-
-\subsection*{Equations}
-
-You can write equations inline, e.g. $\cos\pi=-1$, $E = m \cdot c^2$ and $\alpha$, or you can include them as separate objects. The Bayes’s rule is stated mathematically as:
-
-\begin{equation}
-	P(A|B) = \frac{P(B|A)P(A)}{P(B)},
-	\label{eq:bayes}
-\end{equation}
-
-where $A$ and $B$ are some events. You can also reference it -- the equation \ref{eq:bayes} describes the Bayes's rule.
-
-\subsection*{Lists}
-
-We can insert numbered and bullet lists:
-
-% the [noitemsep] option makes the list more compact
-\begin{enumerate}[noitemsep] 
-	\item First item in the list.
-	\item Second item in the list.
-	\item Third item in the list.
-\end{enumerate}
-
-\begin{itemize}[noitemsep] 
-	\item First item in the list.
-	\item Second item in the list.
-	\item Third item in the list.
-\end{itemize}
-
-We can use the description environment to define or describe key terms and phrases.
-
-\begin{description}
-	\item[Word] What is a word?.
-	\item[Concept] What is a concept?
-	\item[Idea] What is an idea?
-\end{description}
-
-
-\subsection*{Random text}
-
-This text is inserted only to make this template look more like a proper report. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam blandit dictum facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam convallis tellus velit, quis ornare ipsum aliquam id. Maecenas tempus mauris sit amet libero elementum eleifend. Nulla nunc orci, consectetur non consequat ac, consequat non nisl. Aenean vitae dui nec ex fringilla malesuada. Proin elit libero, faucibus eget neque quis, condimentum laoreet urna. Etiam at nunc quis felis pulvinar dignissim. Phasellus turpis turpis, vestibulum eget imperdiet in, molestie eget neque. Curabitur quis ante sed nunc varius dictum non quis nisl. Donec nec lobortis velit. Ut cursus, libero efficitur dictum imperdiet, odio mi fermentum dui, id vulputate metus velit sit amet risus. Nulla vel volutpat elit. Mauris ex erat, pulvinar ac accumsan sit amet, ultrices sit amet turpis.
-
-Phasellus in ligula nunc. Vivamus sem lorem, malesuada sed pretium quis, varius convallis lectus. Quisque in risus nec lectus lobortis gravida non a sem. Quisque et vestibulum sem, vel mollis dolor. Nullam ante ex, scelerisque ac efficitur vel, rhoncus quis lectus. Pellentesque scelerisque efficitur purus in faucibus. Maecenas vestibulum vulputate nisl sed vestibulum. Nullam varius turpis in hendrerit posuere.
-
-
-\subsection*{Figures}
-
-You can insert figures that span over the whole page, or over just a single column. The first one, \figurename~\ref{fig:column}, is an example of a figure that spans only across one of the two columns in the report.
-
-\begin{figure}[ht]\centering
-	\includegraphics[width=\linewidth]{single_column.pdf}
-	\caption{\textbf{A random visualization.} This is an example of a figure that spans only across one of the two columns.}
-	\label{fig:column}
-\end{figure}
-
-On the other hand, \figurename~\ref{fig:whole} is an example of a figure that spans across the whole page (across both columns) of the report.
-
-% \begin{figure*} makes the figure take up the entire width of the page
-\begin{figure*}[ht]\centering 
-	\includegraphics[width=\linewidth]{whole_page.pdf}
-	\caption{\textbf{Visualization of a Bayesian hierarchical model.} This is an example of a figure that spans the whole width of the report.}
-	\label{fig:whole}
-\end{figure*}
-
-
-\subsection*{Tables}
-
-Use the table environment to insert tables.
-
-\begin{table}[hbt]
-	\caption{Table of grades.}
-	\centering
-	\begin{tabular}{l l | r}
-		\toprule
-		\multicolumn{2}{c}{Name} \\
-		\cmidrule(r){1-2}
-		First name & Last Name & Grade \\
-		\midrule
-		John & Doe & $7.5$ \\
-		Jane & Doe & $10$ \\
-		Mike & Smith & $8$ \\
-		\bottomrule
-	\end{tabular}
-	\label{tab:label}
-\end{table}
-
-
-\subsection*{Code examples}
-
-You can also insert short code examples. You can specify them manually, or insert a whole file with code. Please avoid inserting long code snippets, advisors will have access to your repositories and can take a look at your code there. If necessary, you can use this technique to insert code (or pseudo code) of short algorithms that are crucial for the understanding of the manuscript.
-
-\lstset{language=Python}
-\lstset{caption={Insert code directly from a file.}}
-\lstset{label={lst:code_file}}
-\lstinputlisting[language=Python]{code/example.py}
-
-\lstset{language=R}
-\lstset{caption={Write the code you want to insert.}}
-\lstset{label={lst:code_direct}}
-\begin{lstlisting}
-import(dplyr)
-import(ggplot)
-
-ggplot(diamonds,
-	   aes(x=carat, y=price, color=cut)) +
-  geom_point() +
-  geom_smooth()
-\end{lstlisting}
-
 %------------------------------------------------
 
 \section*{Results}
 
 Use the results section to present the final results of your work. Present the results in a objective and scientific fashion. Use visualisations to convey your results in a clear and efficient manner. When comparing results between various techniques use appropriate statistical methodology.
-
-\subsection*{More random text}
-
-This text is inserted only to make this template look more like a proper report. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam blandit dictum facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam convallis tellus velit, quis ornare ipsum aliquam id. Maecenas tempus mauris sit amet libero elementum eleifend. Nulla nunc orci, consectetur non consequat ac, consequat non nisl. Aenean vitae dui nec ex fringilla malesuada. Proin elit libero, faucibus eget neque quis, condimentum laoreet urna. Etiam at nunc quis felis pulvinar dignissim. Phasellus turpis turpis, vestibulum eget imperdiet in, molestie eget neque. Curabitur quis ante sed nunc varius dictum non quis nisl. Donec nec lobortis velit. Ut cursus, libero efficitur dictum imperdiet, odio mi fermentum dui, id vulputate metus velit sit amet risus. Nulla vel volutpat elit. Mauris ex erat, pulvinar ac accumsan sit amet, ultrices sit amet turpis.
-
-Phasellus in ligula nunc. Vivamus sem lorem, malesuada sed pretium quis, varius convallis lectus. Quisque in risus nec lectus lobortis gravida non a sem. Quisque et vestibulum sem, vel mollis dolor. Nullam ante ex, scelerisque ac efficitur vel, rhoncus quis lectus. Pellentesque scelerisque efficitur purus in faucibus. Maecenas vestibulum vulputate nisl sed vestibulum. Nullam varius turpis in hendrerit posuere.
-
-Nulla rhoncus tortor eget ipsum commodo lacinia sit amet eu urna. Cras maximus leo mauris, ac congue eros sollicitudin ac. Integer vel erat varius, scelerisque orci eu, tristique purus. Proin id leo quis ante pharetra suscipit et non magna. Morbi in volutpat erat. Vivamus sit amet libero eu lacus pulvinar pharetra sed at felis. Vivamus non nibh a orci viverra rhoncus sit amet ullamcorper sem. Ut nec tempor dui. Aliquam convallis vitae nisi ac volutpat. Nam accumsan, erat eget faucibus commodo, ligula dui cursus nisi, at laoreet odio augue id eros. Curabitur quis tellus eget nunc ornare auctor.
-
 
 %------------------------------------------------
 
@@ -318,5 +224,137 @@ Here you can thank other persons (advisors, colleagues ...) that contributed to 
 \bibliographystyle{unsrt}
 \bibliography{report}
 
+\appendix
+\appendix
+\section*{Appendix A: Answer Comparisons}
+
+\subsection*{Question 1: What is natural language processing}
+\begin{itemize}
+  \item \textbf{Without New Papers:} Natural Language Processing (NLP) is a subfield of artificial intelligence (AI) that focuses on enabling computers to understand, interpret, and generate human language. It involves the application of computational techniques to the analysis, synthesis, and comprehension of human language. NLP is used in various fields such as speech recognition, sentiment analysis, machine translation, and text summarization.
+  
+  \item \textbf{With New Papers:} Natural language processing (NLP) is a subfield of artificial intelligence (AI) that focuses on enabling computers to understand, interpret, and generate human language. It involves the use of computational techniques to analyze and represent naturally occurring texts, at one or more levels of linguistic analysis, for the purpose of achieving human-like language processing for a range of tasks or applications. NLP algorithms are not naturally designed to process language, so they require significant amounts of training data and sophisticated computational methods to achieve accurate results.
+  
+  \item \textbf{ChatGPT Answer:} Natural Language Processing (NLP) is a branch of artificial intelligence that focuses on the interaction between computers and human language. It enables machines to understand, interpret, and respond to text or speech. Common applications include chatbots, translation, and sentiment analysis.
+\end{itemize}
+
+\subsection*{Question 2: What are some recent papers published in the Natural Language Processing domain}
+\begin{itemize}
+  \item \textbf{Without New Papers:} 
+  Sure! Here are some recent papers published in the Natural Language Processing domain: \\
+  1. \textit{Multi-step Moral Dilemmas} by [Author Name] – This paper introduces a new dataset specifically constructed to evaluate the evolving moral judgments of LLMs across 3,302 five-stage dilemmas. The study reveals that LLMs recalibrate their moral judgments based on scenario complexity and highlights the dynamic and context-dependent nature of LLM ethical reasoning. \\
+  2. \textit{Deep Generative Models} by [Author Name] – This survey presents a brief description of the advances that have occurred in the area of deep generative modeling. It covers topics such as language modeling, text generation, and image synthesis. \\
+  3. \textit{Natural Language Understanding} by [Author Name] – This paper focuses on building language understanding models, which involve tasks such as named entity recognition, sentiment analysis, and question answering. The study explores different approaches to language understanding and their performance on various benchmark datasets.
+
+  \item \textbf{With New Papers:}
+  Here are some recent papers published in the Natural Language Processing domain: \\
+  - \textbf{Title:} Multi-step Moral Dilemmas for Evaluating LLM Ethical Reasoning \\
+    \textbf{Author:} Xiaoyan Zhang, et al. \\
+    \textbf{Overview:} Introduces the MMDs dataset to evaluate evolving moral judgments of LLMs across 3,302 five-stage dilemmas. \\
+  - \textbf{Title:} Mining Unstructured Text Data for Smart Construction Project Management \\
+    \textbf{Author:} Yongjin Kim, et al. \\
+    \textbf{Overview:} Proposes a novel NLP method to mine unstructured text for smart project management in construction. \\
+  - \textbf{Title:} Improving Named Entity Recognition with Deep Learning \\
+    \textbf{Author:} Jianxin Chen, et al. \\
+    \textbf{Overview:} Suggests a deep learning approach for enhancing NER accuracy, outperforming state-of-the-art models.
+  
+  \item \textbf{ChatGPT Answer:}
+  Sure! Here are some recent papers published in the Natural Language Processing domain: \\
+  1. \textit{LLM2Vec: Large Language Models Are Secretly Powerful Text Encoders} – Proposes LLM2Vec, a method for turning decoder-only LLMs into strong encoders. \\
+  2. \textit{Med-Gemini: Capabilities of Gemini Models in Medicine} – Introduces Med-Gemini, a multimodal model for healthcare, outperforming GPT-4. \\
+  3. \textit{MASIVE: Open-Ended Affective State Identification in English and Spanish} – Presents a dataset and method for nuanced emotion detection. \\
+  4. \textit{GeoGPT4V: Towards Geometric Multi-modal Large Language Models} – Focuses on enhancing LLMs in solving geometry problems with visual data. \\
+  5. \textit{Enhancing Machine Translation for Low-resource Languages: A Cross-lingual Learning Approach for TWI} – Offers a framework for improving translation in low-resource languages.
+\end{itemize}
+
+\subsection*{Question 3: How would I use ML to reconstruct damaged artwork?}
+\begin{itemize}
+  \item \textbf{Without New Papers:}
+  Machine learning (ML) can be used to reconstruct damaged artwork by analyzing the available information and generating a close approximation of the original. Techniques include: \\
+  1. \textbf{Image restoration:} Using trained models (like CNNs) to predict and fill in missing pixels based on surrounding areas. \\
+  2. \textbf{Image synthesis:} Using Generative Adversarial Networks (GANs) to generate new images by learning from undamaged examples. \\
+  3. \textbf{Transfer learning:} Fine-tuning pre-trained models on a dataset of damaged artwork to improve reconstruction performance.
+
+  \item \textbf{With New Papers:}
+  Several methods are used for artwork restoration using ML. CNNs can be trained on undamaged images to recreate damaged parts, while GANs are used to generate new images that match the style and structure of the original. Some algorithms are specifically tailored for image inpainting and restoration.
+
+  \item \textbf{ChatGPT Answer:}
+  To reconstruct damaged artwork with ML, image inpainting techniques using CNNs or GANs are applied. These models are trained on undamaged artwork to learn patterns and generate realistic restorations. Style transfer can also ensure visual consistency with the original.
+\end{itemize}
+
+\subsection*{Question 4: Tell me everything you know about unsupervised learning in NLP. Can you give me some references or links I can check also?}
+\begin{itemize}
+  \item \textbf{Without New Papers:}
+  Unsupervised learning in NLP involves discovering patterns in large, unlabeled text datasets. Common techniques include: \\
+  - \textbf{Topic Modeling:} Identifies latent topics in document collections. \\
+  - \textbf{Document Clustering:} Groups similar documents. \\
+  - \textbf{Word Embeddings:} Represents words in vector space to capture meaning.
+
+  Algorithms used: LDA, NMF, Word2Vec. \\
+  Suggested readings:
+  \begin{itemize}
+    \item \textit{Unsupervised Learning for Text Mining} – S. Datta, A. Ghosh
+    \item \textit{Topic Modeling for Text Mining} – M. Blei, L. Lafferty
+    \item \textit{Word Embeddings for Text Mining} – M. Mikolov, K. Sutskever
+  \end{itemize}
+  
+  \item \textbf{With New Papers:}
+  Similar to above, with focus on open-source tools like NLTK, spaCy, and Gensim for implementation. Emphasizes topic modeling and clustering along with modern embeddings.
+
+\end{itemize}
+
+\subsection*{Question 5: I want to start learning about RAG in Natural Language Processing. What literature and articles do you suggest I go through? Can you give me dates of their release as well?}
+
+\begin{itemize}
+  \item \textbf{Without New Papers:} \\
+  There are several papers and articles that discuss RAG (Role-Aware Generation) in Natural Language Processing. Here are some suggestions: \\[6pt]
+  -- ``Role-Aware Generation'' by Yoshua Bengio, et al., published in Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing (EMNLP). This paper introduces the concept of role-aware generation and presents a model that generates text based on the roles of the entities involved.\\
+  -- ``Role-Aware Text Generation with Attention Mechanisms'' by Zhongyuan Liu, et al., published in Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing (EMNLP). This paper presents a model that uses attention mechanisms to generate text based on the roles of the entities involved.\\
+  -- ``Role-Aware Text Generation using Transformers'' by Xiaoyu Zhang, et al., published in Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing (EMNLP). This paper presents a model that uses transformers to generate text based on the roles of the entities involved.\\[6pt]
+  These papers were released between 2015 and 2019.
+
+  \item \textbf{With New Papers:} \\
+  Here are five recent literature and articles related to RAG in Natural Language Processing that you can consider reading: \\[6pt]
+  1. ``Prompting-Based Methods for Reasoning with Language Models'' by Jiang et al. (2023). This paper proposes a prompting-based method to enable reasoning with language models.\\
+  2. ``A Survey of Reasoning with Language Models'' by Zhang et al. (2023). This literature review focuses on the state-of-the-art methods for reasoning with language models.\\
+  3. ``Noise on Reasoning with Generative Adversarial Networks'' by Chen et al. (2023). This paper investigates the impact of noise on reasoning with generative adversarial networks.\\
+  4. ``Fine-Tuning Language Models with New Factual Data'' by Li et al. (2023). This paper explores the effects of fine-tuning language models with new factual data.\\
+  5. ``Reasoning with Language Models: A Comprehensive Review'' by Wang et al. (2023). This literature review provides a comprehensive overview of reasoning with language models.\\[6pt]
+  All of these papers were released in 2023 or later.
+
+  \item \textbf{ChatGPT Answer:} \\
+  Unsupervised learning in NLP involves training models on unlabeled text to discover patterns without explicit annotations. Common techniques include word embeddings (like Word2Vec), topic modeling (e.g., LDA), clustering, and pretraining language models (like BERT and GPT) using tasks such as masked word prediction. These methods help with tasks like text summarization, sentiment analysis, and improving search by learning from raw text data.\\[6pt]
+  For more info, check these links: \\
+  -- GeeksforGeeks on Unsupervised Learning \\
+  -- Wikipedia Unsupervised Learning \\
+  -- ArXiv paper on Unsupervised Text Classification \\
+  Let me know if you want details on any specific method!
+\end{itemize}
+
+\bigskip
+
+\subsection*{Question 6: What can you tell me about semantic web? Give me longer, more informed answer.}
+
+\begin{itemize}
+  \item \textbf{Without New Papers:} \\
+  The Semantic Web is a vision for the future of the World Wide Web, in which data is represented using machine-readable formats and processed by machines rather than humans. It is built on top of the existing Web infrastructure and aims to enable computers to understand and interpret information on the Web in a way that is currently not possible. \\[6pt]
+  The core technology behind the Semantic Web is the Resource Description Framework (RDF), which provides a standard way of representing data as triples (subject-predicate-object statements). RDF allows data to be linked together in a graph-like structure, making it easier for machines to reason about relationships between different pieces of information. \\[6pt]
+  Another key component of the Semantic Web is the use of ontologies, which provide a formal definition of the meaning of terms and relationships within a specific domain. Ontologies allow machines to understand the meaning of words and concepts in a consistent and precise way, enabling them to reason about information in a more sophisticated manner. \\[6pt]
+  There are several ongoing efforts to develop and deploy the Semantic Web, including the creation of standardized vocabularies and ontologies, the development of tools and platforms for working with RDF and ontologies, and the integration of the Semantic Web with existing Web technologies such as HTTP and HTML. \\[6pt]
+  While the Semantic Web is still in its early stages, it has the potential to revolutionize the way we interact with information on the Web, enabling machines to understand and interpret information in a more intelligent and intuitive way. This could have a wide range of applications, from improving search and information retrieval to enabling new forms of collaboration and knowledge sharing.
+
+  \item \textbf{With New Papers:} \\
+  The Semantic Web is a vision for the future of the World Wide Web, in which data is represented using machine-readable formats and processed by machines rather than humans. It is built on top of the existing Web infrastructure and aims to enable computers to understand and interpret information on the Web in a way that is currently not possible. \\[6pt]
+  The core technology behind the Semantic Web is the Resource Description Framework (RDF), which provides a standard way of representing data as triples (subject-predicate-object statements). RDF allows data to be linked together in a graph-like structure, making it easier for machines to reason about relationships between different pieces of information. \\[6pt]
+  Another key component of the Semantic Web is the use of ontologies, which provide a formal definition of the meaning of terms and relationships within a specific domain. Ontologies allow machines to understand the meaning of words and concepts in a consistent and precise way, enabling them to reason about information in a more sophisticated manner. \\[6pt]
+  There are several ongoing efforts to develop and deploy the Semantic Web, including the creation of standardized vocabularies and ontologies, the development of tools and platforms for working with RDF and ontologies, and the integration of the Semantic Web with existing Web technologies such as HTTP and HTML. \\[6pt]
+  While the Semantic Web is still in its early stages, it has the potential to revolutionize the way we interact with information on the Web, enabling machines to understand and interpret information in a more intelligent and intuitive way. This could have a wide range of applications, from improving search and information retrieval to enabling new forms of collaboration and knowledge sharing.
+
+  \item \textbf{ChatGPT Answer:} \\
+  The Semantic Web is an evolution of the current World Wide Web that aims to make data on the internet understandable not just by humans but also by machines. While the traditional web focuses on linking documents primarily for human consumption, the Semantic Web adds a layer of meaning by structuring data with metadata and using shared vocabularies. This allows computers to interpret the context and relationships between data points, enabling more intelligent data processing, integration, and automation. \\[6pt]
+  At the core of the Semantic Web are technologies like the Resource Description Framework (RDF), which represents information as triples—subject, predicate, and object—forming a graph of linked data. Ontologies provide formal definitions of concepts and relationships within specific domains, giving machines a shared vocabulary to understand the data consistently. To query this structured data, the Semantic Web uses SPARQL, a powerful language designed for retrieving and manipulating information stored in RDF format. \\[6pt]
+  The benefits of the Semantic Web are wide-ranging. It enables improved search engines that understand user queries semantically rather than relying solely on keyword matching, resulting in more relevant and precise results. It also facilitates data integration from diverse sources, such as healthcare, finance, and social media, by providing a common framework to describe and connect data. Additionally, the Semantic Web supports automation through intelligent agents that can reason over linked data, enabling applications like virtual assistants or recommendation systems. Major tech companies leverage these principles to build knowledge graphs that enhance user experiences by organizing complex information about entities and their relationships. \\[6pt]
+  Despite its potential, the Semantic Web faces challenges including the complexity of creating and maintaining ontologies, ensuring high-quality and trustworthy data, and achieving broad adoption among data providers. Nonetheless, ongoing developments and growing interest continue to push the Semantic Web closer to realizing its vision of a web of data that is as accessible and understandable to machines as it is to humans. \\[6pt]
+  If you want to explore further, useful resources include the W3C Semantic Web Overview and Tim Berners-Lee’s Linked Data design principles. Let me know if you'd like me to explain any part in more detail!
+\end{itemize}
 
 \end{document}
