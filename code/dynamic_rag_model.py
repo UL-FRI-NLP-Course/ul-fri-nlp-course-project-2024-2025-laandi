@@ -30,7 +30,7 @@ class DynamicRAG:
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.MODEL_NAME,
-            quantization_config=bnb_config
+            quantization_config=bnb_config,
             device_map="auto"
         )
 
