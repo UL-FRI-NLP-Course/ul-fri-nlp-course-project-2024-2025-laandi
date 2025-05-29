@@ -20,6 +20,10 @@
 %----------------------------------------------------------------------------------------
 \documentclass[fleqn,moreauthors,10pt]{ds_report}
 \usepackage[english]{babel}
+\usepackage{svg}
+\usepackage{subcaption}
+\usepackage{float}
+
 
 \graphicspath{{fig/}}
 
@@ -261,7 +265,39 @@ In this section, we discuss the impact of different system prompts on the perfor
 
 \section*{Results}
 
-Use the results section to present the final results of your work. Present the results in a objective and scientific fashion. Use visualisations to convey your results in a clear and efficient manner. When comparing results between various techniques use appropriate statistical methodology.
+In this section, we will present the findings of our experimental evaluation.
+
+\subsection*{Model Comparison - User Study}
+
+These results, shown in Figure \ref{fig:summary}, summarize how the three models were ranked by 20 university students who participated in the survey. Most of the participants have prior knowledge in Natural Language Processing (NLP), ensuring informed evaluations across the survey questions. For detailed rankings of all survey questions, please refer to Appendix B.
+
+
+The baseline model, which relies only on static data stored in our vectorstore, often received the highest rankings. It performed well especially when the question could be answered using existing knowledge. This shows that the baseline model provides a strong foundation and reliable answers for many prompts.
+
+The extended model improves on this by adding live retrieval of recent academic papers on user demand. This model generally performed better than ChatGPT and sometimes better than the baseline. It received more top and second-place rankings, indicating that having access to up-to-date information helps improve answer quality, especially for questions requiring current research.
+
+
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.9\linewidth]{evaluation_figs/summary_plot.svg}
+    \caption{Overall Model Performance Based on User Rankings}
+    \label{fig:summary}
+\end{figure}
+
+Even though ChatGPT is a powerful conversational agent, its rankings were mixed in this academic context, it tended to receive more third-place votes compared to our models. It is important to note that ChatGPT’s responses in this evaluation were more concise than usual due to the word count limit, which was intended to keep the comparison fair. While this model typically generates more elaborate and detailed answers, the shorter format sometimes led to responses that felt overly general or less tailored to the academic context. In contrast, our models allow users to influence the answer more directly by using keywords, which often resulted in more focused and relevant content. Although ChatGPT was limited in length, it is still expected to provide high-quality answers. However, this constraint may have contributed to its lower rankings compared to our more adaptive system.
+
+Although the user study results show that participants mostly preferred our extended model, the model does have some shortcomings. Several limitations and potential improvements were noted, which will be discussed later in the report.
+
+\subsection*{Model Comparison - Overview of Answers}
+
+Our evaluation revealed important differences in how each model (Baseline + Vectorstore, Vectorstore + Fetch, ChatGPT, and Claude) handled academic queries. Some of the asked questions are included in Appendix A.
+
+The baseline model gave solid answers. Since it uses a  database of articles from 2023 onwards, it already includes fairly recent research. However, it doesn’t search for new articles beyond what’s already stored. We found, it also has trouble remembering all details for certain paper, e.g. the model forgets author's name. The extended model builds on this by fetching even more recent papers based on keywords from the user's question. Still, we found that it sometimes picked articles that were too specific or not directly helpful, which made some answers less useful overall. We found that it would sometimes begin to hallucinate, which is understandable for project of this scope.
+
+Our opinion is that while ChatGPT gives clear answers, they're often not detailed enough for research questions. Claude does better overall. It gives more complete and accurate answers while still being understandable. We found Claude's responses to be the most useful for academic work because it explains complex topics well without getting too technical.
+
+In summary, the quality of the answers depends a lot on the keywords provided by the user and how detailed the prompts are. Both of our models showed solid performance overall, though there are still some issues, such as overly specific article choices or occasional hallucinations. 
+
 
 %------------------------------------------------
 
@@ -297,6 +333,10 @@ Here you can thank other persons (advisors, colleagues ...) that contributed to 
 %----------------------------------------------------------------------------------------
 \bibliographystyle{unsrt}
 \bibliography{report}
+
+
+\clearpage
+
 
 \appendix
 \appendix
@@ -461,5 +501,53 @@ The Semantic Web is built upon a stack of standardized technologies, each servin
 RDF fundamentally changes how we think about data representation. Instead of storing information in tables or documents, RDF represents knowledge as a graph of interconnected statements. Each statement is a triple consisting of a subject (what we're talking about), a predicate (the property or relationship), and an object (the value or related entity). For example, "Shakespeare wrote Hamlet" becomes three components: Shakespeare (subject), wrote (predicate), and Hamlet (object). This model is incredibly flexible and allows for the representation of complex, interconnected knowledge in a way that's both human-understandable and machine-processable.
 
 \end{itemize}
+
+\clearpage
+
+\section*{Appendix B}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_1.svg}
+    \caption{Question 1}
+    \label{fig:question_1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_2.svg}
+    \caption{Question 2}
+    \label{fig:question_2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_3.svg}
+    \caption{Question 3}
+    \label{fig:question_3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_4.svg}
+    \caption{Question 4}
+    \label{fig:question_4}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_5.svg}
+    \caption{Question 5}
+    \label{fig:question_5}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includesvg[width=0.8\linewidth]{evaluation_figs/question_6.svg}
+    \caption{Question 6}
+    \label{fig:question_6}
+\end{figure}
+
+
 
 \end{document}
