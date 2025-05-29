@@ -135,37 +135,30 @@ The conversational agent is implemented using the LangChain library, which allow
 
 \section*{Methodology - Anja}
 
+\subsection*{Pipeline overview}
+Our proposed method starts with building a database by collecting suitable articles from different sources. These documents are then turned into vectors and selected based on how similar they are, using FAISS and sentence-transformers. We also check their hashes to avoid adding duplicates. After that, we retrieve the most relevant documents by using a similarity score or threshold. The selected articles are added as context to a pre-designed system template, which is then fed to a large language model to get the final answer. More details of our approach are explained in the following sections.
+
 \subsection*{Baseline Model Implementation}
+In the sample work of our proof-of-concept model setup, our focus was mainly on the various resources and ways of implementing them. There are many ways of obtaining academic papers that have been found and in turn implemented in the test of the capabilities of the pipeline. Many of the papers are possible to be obtained and have public API interfaces that give much leeway in how and what we search. Popular and massive academic libraries such as arXiv and Semantic Scholar already have available Python libraries allowing us to seamlessly implement them and their resources into our project. While other sites such as Google Scholar and CORE have publicly open API interfaces still making it possible to quickly fetch the data. While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping. Integrating the Playwright library and some simple web scraping methods makes it possible to also implement these papers into the vectorization of this data. In our approach, we used it to web scrape ResearchGate.
 
-In the sample work of our proof-of-concept model setup, the focus was mainly on the various resources and ways of implementing them.
+To store the articles, we first had to obtain some metadata, such as title, authors, year of publication, abstract and url. The latter could be used to access the page and read more about the article. We also filtered out the articles with empty abstract, as they did not offer enough information for us to evaluate them fairly. Since most of the models are trained on data before 2023, we decided to only keep the documents that were published in year 2023 or later.
 
-While the baseline implementation only included simple and one model testing, it is important to highlight the different methods that are important in this situation and context.
+This being our first version of the model, the database was not yet set up, but documents were always fetched on the fly from all incorporated sources. With the help from the tutorials, we implemented the code that already contained document vectorization and FAISS library, as well as the baseline conversational agent with corresponding system prompt. 
+
+When migrating our code to Arnes HPC, we stumbled upon some issues. The Playwright library had problems with permissions in terms of browser access, which is why we were not able to use it. We also realized that this specific website is not as useful as we thought, since it does not offer data about abstract, which is our most informative metadata. There were also issues with using Semantic Scholar, as the Python library resulted in calling SSL\_CERTIFICATE, which we again did not have access to. To obtain the relevant articles from Semantic Scholar, we had to run the code on our personal computers and transfer it to HPC via \texttt{scp} command.
+
+We tested our baseline implementation by asking the model various questions. They did not have to be related to natural language processing, as the database was created temporarily for each run. The model took the question we posed as input and returned the answer, using the provided context from the fetched articles. The preliminary results were only made by subjective evaluation, and at the first glance, the model was returning meaningful and suitable results.
 
 \subsection*{Database}
 
 \subsubsection*{Creation: papers, resources and fetching}
+\textbf{Building with keywords.} At first, our idea was to put together a database by selecting 241 keywords, related to the field of natural language processing, which were assembled beforehand. Then we queried the model with: first, chunks of keywords (grouped eg. 10 keywords with boolean OR into one query) and second, one by one. The documents were fetched from the same sources that we described earlier. With each query, we asked the model to find a maximum of 100 articles per source per keyword in order to enlarge the database as much as possible. After some time, we started having issues with the two APIs, as they did not permit the large number of queries that we were executing.
 
-We've managed to group together and take use of many knowledge bases of academic research and compile them into the sample RAG pipeline that manages to access these papers in a keyword fashion and give answers enriched with these resources.
+The database ended up consisting of around 17000 articles. Within first tests, the similarity when retrieving documents turned out to be poor and in addition were completely unrelated to the question asked. One of the possible reasons was that our database ended up being too noisy, as the method with keywords did not capture suitable articles for the goal academic field. We decided to take a different approach, which is described in the following text.
+\\
+\textbf{Building with category filtering.} Many of our previous sources did not have the ability to filter the articles by categories within the query, which is why we added some anew. Our main source this time was ACL, which contains papers from conferences in fields of natural language processing and linguistics. This provided us with around 15000 starting articles and the results improved immediately. Filtering by category was not necessary for ACL source, since the main field of study was self-explanatory. To satisfy the need, we also modified an existing source (arXiv) so that the appropriate category was embedded in the query. OpenAlex has also been added, as it is able to filter the articles by using concepts IDs. None of the listed retrievals were limited to a number of articles, they had, however, still to take the demand for abstract and suitable publication year into account. This got us a total of around 20000 articles.
 
-In implementing many of these papers, that our Python script fetches, they are then converted into vectors, and chosen based on similarity, using the FAISS library.
-
-There are many ways of obtaining academic papers that have been found and in turn implemented in the test of the capabilities of the pipeline.
-
-Many of the papers are possible to be obtained and have public API interfaces that give much leeway in how and what we search.
-
-Popular and massive academic libraries such as Arxiv and Semantic Scholar already have available Python libraries allowing us to seamlessly implement them and their resources into our project.
-
-While other sites such as GoogleScholar and CORE have publicly open API interfaces still making it possible to quickly fetch the data.
-
-While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping.
-
-Integrating the Playwright library and some simple web scraping methods makes it possible to also implement these papers into the vectorization of this data.
-
-\subsubsection*{Dataset Details}
-how many ppaers, from how many keywords etc
-
-\subsection*{Expanding the Baseline with Database}
-
+\subsection*{Document creation and database loading}
 The vectorization of the data is done using the FAISS library, which allows us to efficiently search and retrieve similar papers based on the keywords given in the query.
 
 The embedding model is also an aspect not that much highlighted in our testing case, but something to be researched upon further, given the importance of our RAG data.
@@ -178,13 +171,15 @@ The k parameter is the amount of papers that are being fetched from the vectoriz
 
 This is something that could be further analyzed and tested, as it is a very important part of the pipeline.
 
+\subsection*{Retriever}
+...
+
+\subsection*{Prompt Design and Choice of LLM}
+...
 \subsection*{On-Demand Paper Fetching}
+practical use
 
 The user can choose the option to fetch additional papers on demand....
-
-\subsection*{Prompt Design}
-
-...
 
 
 \section*{Analysis}

@@ -247,7 +247,7 @@ def fetch_openalex_papers(query, max_papers=5):
 
     while cursor and (max_pages is None or count < max_pages):
         params = {
-            "filter": "concepts.id:C204321447,from_publication_date:2023-01-01,cited_by_count:>10",  # NLP concept ID in OpenAlex
+            "filter": "concepts.id:C204321447,from_publication_date:2023-01-01,cited_by_count:>10",  # NLP concept ID in OpenAlex, also Natural Language id: C195324797
             "per-page": per_page,
             "cursor": cursor,
         }
