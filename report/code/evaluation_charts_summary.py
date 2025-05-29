@@ -59,9 +59,9 @@ rank_3 = np.array([summary_percentages[ans][2] for ans in answer_labels])
 y_pos = np.arange(len(answer_labels))
 
 plt.figure(figsize=(8, 5))
-plt.barh(y_pos, rank_1, color='blue', label='Rank 1')
-plt.barh(y_pos, rank_2, left=rank_1, color='orange', label='Rank 2')
-plt.barh(y_pos, rank_3, left=rank_1 + rank_2, color='green', label='Rank 3')
+plt.barh(y_pos, rank_1, color='#003f5c', label='Rank 1', height=0.5)
+plt.barh(y_pos, rank_2, left=rank_1, color='#ffa600', label='Rank 2', height=0.5)
+plt.barh(y_pos, rank_3, left=rank_1 + rank_2, color='#58508d', label='Rank 3', height=0.5)
 
 # Add percentage text on bars
 for i in range(len(answer_labels)):
@@ -69,7 +69,7 @@ for i in range(len(answer_labels)):
     plt.text(rank_1[i] + rank_2[i] / 2, y_pos[i], f'{rank_2[i]:.1f}%', va='center', ha='center', color='white', fontsize=10)
     plt.text(rank_1[i] + rank_2[i] + rank_3[i] / 2, y_pos[i], f'{rank_3[i]:.1f}%', va='center', ha='center', color='white', fontsize=10)
 
-plt.yticks(y_pos, answer_labels)
+plt.yticks(y_pos, answer_labels,)
 plt.xlabel('Percentage of Times Ranked')
 plt.title('Summary of Answer Rankings for All Three Models (in %)')
 plt.legend()
