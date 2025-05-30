@@ -6,7 +6,7 @@ This repository contains our research project for the Natural Language Processin
 
 ## Project Overview
 
-We present a specialized conversational agent designed to enhance academic research by combining Retrieval-Augmented Generation (RAG) with web scraping techniques. The system aims to provide accurate, citation-backed responses while addressing common limitations of traditional language models such as outdated information and hallucinations.
+We present a specialized conversational agent designed to enhance academic research by combining Retrieval-Augmented Generation (RAG) with dynamic online data fetching. The system aims to provide accurate, citation-backed responses while addressing common limitations of traditional language models such as outdated information and uninformed answers.
 
 ### Research Goals
 
@@ -20,11 +20,11 @@ We present a specialized conversational agent designed to enhance academic resea
 ```
 .
 ├── code                    # Main implementation code
-    ├── old/                # Legacy files - baseline implementation, testing, database construction
+    ├─ baseline_script.sh   # Main agent query script
+    └── old/                # Legacy files - baseline implementation, testing, database construction
 ├── report/                 # LaTeX report and documentation
-    ├── code/               # Evaluation code and test scripts
+    ├─ report.pdf           # The report itself
     └── evaluations_figs/   # Evaluation figures
-    └── fig/                # Other figures and resources used in the report
 ```
 
 ### Instructions for running the code
