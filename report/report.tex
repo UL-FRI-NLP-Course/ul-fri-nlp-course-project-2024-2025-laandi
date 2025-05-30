@@ -73,7 +73,7 @@ In this paper, we present a conversational agent that leverages Retrieval-Augmen
 
 % Print the title and abstract box
 \maketitle 
-
+.
 % Removes page numbering from the first page
 \thispagestyle{empty} 
 
@@ -165,7 +165,7 @@ While we did manually input the actual keywords themselves in our test cases, we
 
 While this solution was not properly tested, we do expect it to work well in practice, given the simplicity of the implementation and the fact that it is based on a well-known library that has been used in many other projects. Although it is important to mention, that this does leave in room for improvement, as the library itself has tuning that is available, which could significantly improve the quality of the context being fetched.
 
-\section*{Analysis}
+\section*{Initial Model Analysis}
 For the simple demonstration of the capabilities our model, using RAG techniques with scientific papers, we have made a short testing suite based on some sample questions one could maybe pose when researching for a topic in an academic setting. Because the baseline implementation lacks proper testing and fine-tuning, when pinning the results against proper, in-use, online AI agents, we've appended to the query the following: "Answer the question shortly". In this way, the agents will respond in shorter answers more uniform to our baseline implementation, given that in the opposite case, we get rather large and formatted answers which do not quite align with our results for our baseline implementation.
 
 We've constructed queries, each with some keywords attached to them, such that our agent could search for proper context, and asked it the question in connection to the keywords.
@@ -237,15 +237,13 @@ Overall, this evaluation approach gave us valuable insights into the strengths a
 To complement the user-based evaluation, we included a qualitative comparison between our model and two widely used conversational agents: ChatGPT and Claude. For each prompt used in the questionnaire, we generated responses from all systems: our baseline model, our extended retrieval-augmented model, and the external agents. These outputs were then examined side-by-side to assess differences in style, structure, and content delivery. While this comparison was not part of the formal user evaluation, it provided an additional perspective on how our models align with or differ from established systems in terms of generation technique and retrieval integration.
 
 
-\subsection*{Comparing and discussing different possible system prompts}
-In this section, we discuss the impact of different system prompts on the performance of our conversational agent.
 
 \subsection*{Discussing paper retrieval and their relevance}
 
 
 \section*{Results}
 
-In this section, we will present the findings of our experimental evaluation.
+The following results illustrate how each model performed when evaluated on academic question answering tasks. We highlight key findings from both user rankings and qualitative comparisons of the generated answers.
 
 \subsection*{Model Comparison - User Study}
 
@@ -285,7 +283,13 @@ In summary, the quality of the answers depends a lot on the keywords provided by
 
 \section*{Discussion}
 
-Use the Discussion section to objectively evaluate your work, do not just put praise on everything you did, be critical and exposes flaws and weaknesses of your solution. You can also explain what you would do differently if you would be able to start again and what upgrades could be done on the project in the future.
+The project demonstrated several notable strengths in its approach to integrating Retrieval-Augmented Generation (RAG) with targeted academic paper retrieval. One of the main successes was the ability to build a focused, up-to-date database by leveraging APIs from sources such as arXiv, Semantic Scholar, ACL, and OpenAlex. This allowed the system to provide contextually relevant and recent information, addressing a common shortcoming of general-purpose language models, which often rely on outdated training data. The use of FAISS for similarity search and the decision to limit the number of context documents helped maintain answer relevance and prevented the model from being overwhelmed with excessive or irrelevant information. Additionally, the implementation of automated keyword extraction using the keyBert library streamlined the process of fetching new papers, making the system more user-friendly and adaptable to new topics.
+
+Despite these strengths, the project also encountered challenges. The initial method of building the database using a broad set of keywords resulted in a noisy dataset with many irrelevant articles, which negatively impacted retrieval quality. This issue highlighted the importance of careful source selection and filtering, leading to a shift toward category-based filtering and the use of more domain-specific sources like ACL, which immediately improved results. Technical limitations also posed problems, particularly with restricted access to certain scraping tools and APIs on the HPC cluster, requiring manual workarounds and additional effort to transfer data. Furthermore, the evaluation of the system was primarily subjective, and while the agent’s responses were generally relevant and student-like, they sometimes lacked the completeness and depth seen in larger, more established models like Claude.
+
+
+If we were to repeat this project, we would focus on three main improvements. First, we would implement a more systematic and quantitative evaluation process to better measure answer quality. Second, we would refine the template for generated answers to ensure more consistent and useful outputs. Finally, we would spend more time fine-tuning the language model itself to improve both the depth and accuracy of its responses. These changes would help address the main shortcomings we encountered and make the system more robust and effective for academic use.
+
 
 %------------------------------------------------
 \section*{Future work}
@@ -305,13 +309,8 @@ Storing and thinking of better ways of analyzing these papers is also a proper v
 \section*{Conclusion}
 The conclusion.
 
-...
 
-%------------------------------------------------
 
-\section*{Acknowledgments}
-
-Here you can thank other persons (advisors, colleagues ...) that contributed to the successful completion of your project.
 
 
 %----------------------------------------------------------------------------------------
