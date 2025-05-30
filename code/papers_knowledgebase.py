@@ -22,48 +22,48 @@ EMBEDDING_MODEL=HuggingFaceEmbeddings(model_name="/d/hpc/projects/onj_fri/laandi
 
 # ArXiv
 def fetch_arxiv_papers(query, max_results=5):
-    # client = arxiv.Client()
-    # search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
-    # papers = []
-    # for result in client.results(search):
-    #     papers.append({
-    #         "title": result.title,
-    #         "summary": result.summary,
-    #         "authors": [author.name for author in result.authors],
-    #         "published": str(result.published.date()), #example '2017-03-04'
-    #         "url": result.entry_id, # URL to the arxiv page
-    #         "pdf_url": result.pdf_url, # URL to the actual paper
-    #         "source": "arXiv"
-    #     })
-    # return papers
-
-    ## Testing with category
-
-    search = arxiv.Search(query="cat:cs.CL", max_results=5000, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
-    results = None
-    try:
-        results = list(search.results())  # Pull all results at once (until arXiv stops)
-    except Exception as e:
-        print("Reached the end of arXiv results.")
-        return []
-
+    client = arxiv.Client()
+    search = arxiv.Search(query=query, max_results=max_results, sort_by=arxiv.SortCriterion.Relevance)
     papers = []
-    for result in results:
-        date_ = result.published.date() if result.published else None
-        year = date_.year if date_ else "Unknown"
-        year = int(year) if year != "Unknown" else "Unknown"
-        if year < 2023:
-            continue
+    for result in client.results(search):
         papers.append({
             "title": result.title,
             "summary": result.summary,
             "authors": [author.name for author in result.authors],
-            "published": year, #example '2017-03-04'
+            "published": str(result.published.date()), #example '2017-03-04'
             "url": result.entry_id, # URL to the arxiv page
             "pdf_url": result.pdf_url, # URL to the actual paper
             "source": "arXiv"
         })
     return papers
+
+    # ## Testing with category
+
+    # search = arxiv.Search(query="cat:cs.CL", max_results=5000, sort_by=arxiv.SortCriterion.SubmittedDate, sort_order=arxiv.SortOrder.Descending)
+    # results = None
+    # try:
+    #     results = list(search.results())  # Pull all results at once (until arXiv stops)
+    # except Exception as e:
+    #     print("Reached the end of arXiv results.")
+    #     return []
+
+    # papers = []
+    # for result in results:
+    #     date_ = result.published.date() if result.published else None
+    #     year = date_.year if date_ else "Unknown"
+    #     year = int(year) if year != "Unknown" else "Unknown"
+    #     if year < 2023:
+    #         continue
+    #     papers.append({
+    #         "title": result.title,
+    #         "summary": result.summary,
+    #         "authors": [author.name for author in result.authors],
+    #         "published": year, #example '2017-03-04'
+    #         "url": result.entry_id, # URL to the arxiv page
+    #         "pdf_url": result.pdf_url, # URL to the actual paper
+    #         "source": "arXiv"
+    #     })
+    # return papers
 
 # Semantic Scholar
 def fetch_semantic_scholar_papers(query, max_results=5):
@@ -94,7 +94,7 @@ def fetch_googlescholar_papers(query, max_results=5):
         "q": query,
         "engine": "google_scholar",
         "api_key": api_key,
-        "as_ylo": "2022",
+        #"as_ylo": "2022",
     }
 
     response = requests.get(search_url, params=params)
@@ -171,8 +171,8 @@ def fetch_core_papers(query: str, max_papers: int = 5):
         "Content-Type": "application/json"
     }
 
-    date = "yearPublished:2022 OR yearPublished:2023 OR yearPublished:2024 OR yearPublished:2025"
-    query = query + " " + date
+    # date = "yearPublished:2022 OR yearPublished:2023 OR yearPublished:2024 OR yearPublished:2025"
+    # query = query + " " + date
     
     params = {
         "q": query,
@@ -237,74 +237,70 @@ def decode_abstract(abstract_inverted_index):
             word_list[pos] = word
     return ' '.join(word_list)
 
-def fetch_openalex_papers(query, max_papers=5):
-    per_page = 200
-    max_pages = None
-    endpoint = "https://api.openalex.org/works"
-    cursor = "*"
-    all_results = []
-    count = 0
+# def fetch_openalex_papers_2(query, max_papers=5):
+#     per_page = 200
+#     max_pages = None
+#     endpoint = "https://api.openalex.org/works"
+#     cursor = "*"
+#     all_results = []
+#     count = 0
 
-    while cursor and (max_pages is None or count < max_pages):
-        params = {
-            "filter": "concepts.id:C204321447,from_publication_date:2023-01-01,cited_by_count:>10",  # NLP concept ID in OpenAlex, also Natural Language id: C195324797
-            "per-page": per_page,
-            "cursor": cursor,
-        }
-        response = requests.get(endpoint, params=params)
-        data = response.json()
+#     while cursor and (max_pages is None or count < max_pages):
+#         params = {
+#             "filter": "concepts.id:C204321447,from_publication_date:2023-01-01,cited_by_count:>10",  # NLP concept ID in OpenAlex, also Natural Language id: C195324797
+#             "per-page": per_page,
+#             "cursor": cursor,
+#         }
+#         response = requests.get(endpoint, params=params)
+#         data = response.json()
 
-        results = data.get("results", [])
-        all_results.extend(results)
+#         results = data.get("results", [])
+#         all_results.extend(results)
 
-        cursor = data.get("meta", {}).get("next_cursor")
-        count += 1
+#         cursor = data.get("meta", {}).get("next_cursor")
+#         count += 1
 
-        if not results or not cursor:
-            break
+#         if not results or not cursor:
+#             break
 
-    papers = []
-    for result in all_results:
-        try:
-            # Extract basic information
-            title = result.get("title", "No title available")
-            abstract = decode_abstract(result.get('abstract_inverted_index'))
-            if not abstract:
-                continue
-            year = result.get("publication_year", "Unknown")
-            doi = result.get('doi', result.get('id'))
+#     papers = []
+#     for result in all_results:
+#         try:
+#             # Extract basic information
+#             title = result.get("title", "No title available")
+#             abstract = decode_abstract(result.get('abstract_inverted_index'))
+#             if not abstract:
+#                 continue
+#             year = result.get("publication_year", "Unknown")
+#             doi = result.get('doi', result.get('id'))
             
-            # Extract authors
-            authors = []
-            for author in result.get("authorships", []):
-                authors.append(author["author"]["display_name"])
+#             # Extract authors
+#             authors = []
+#             for author in result.get("authorships", []):
+#                 authors.append(author["author"]["display_name"])
             
-            papers.append({
-                "title": title,
-                "summary": abstract,
-                "authors": authors if authors else ["Unknown"],
-                "published": str(year),
-                "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
-                "source": "OpenAlex"
-            })
-        except Exception as e:
-            print(f"Error processing result: {e}")
-            continue
-    return papers
+#             papers.append({
+#                 "title": title,
+#                 "summary": abstract,
+#                 "authors": authors if authors else ["Unknown"],
+#                 "published": str(year),
+#                 "url": result.get("url", f"https://doi.org/{doi}" if doi else None),
+#                 "source": "OpenAlex"
+#             })
+#         except Exception as e:
+#             print(f"Error processing result: {e}")
+#             continue
+#     return papers
 
-def fetch_openalex_papers2(query: str, max_papers: int = 5):
+def fetch_openalex_papers(query: str, max_papers: int = 5):
     
-    year = 2022
-    url = (
-            f"https://api.openalex.org/works"
-            f"?filter=title.search:{query},from_publication_date:{year}-01-01"
-        )
+    url = (f"https://api.openalex.org/works?search:{query}")
       
     try:
         # Search for concept ID - broader
-        concept_id = requests.get(f"https://api.openalex.org/concepts?search={query}")
-        response.raise_for_status()
-        data = response.json()
+        # concept_id = requests.get(f"https://api.openalex.org/concepts?search={query}")
+        # response.raise_for_status()
+        # data = response.json()
 
         # Search for articles with concept ID
         response = requests.get(url)
@@ -344,6 +340,7 @@ def fetch_openalex_papers2(query: str, max_papers: int = 5):
         return []
 
 def fetch_acl_papers(query: str, max_papers: int = 5):
+    # Used just for database construction
     anthology = Anthology.from_repo()
     acl_papers = list(anthology.papers())
 
@@ -367,14 +364,14 @@ def fetch_acl_papers(query: str, max_papers: int = 5):
     
 def fetch_papers(
         query, 
-        max_papers=2, 
+        max_papers=5, 
         arxiv=True, 
         semantic_scholar=False, 
         googlescholar=True, 
-        researchgate=True, 
+        researchgate=False, 
         core=True,
         openalex=True,
-        acl=True
+        acl=False
     ):
     papers = []
     if not any([arxiv, semantic_scholar, googlescholar, researchgate, core, openalex, acl]):
