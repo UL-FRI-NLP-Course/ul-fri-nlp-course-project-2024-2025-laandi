@@ -60,7 +60,7 @@
 %----------------------------------------------------------------------------------------
 
 \Abstract{
-In this paper, we present a conversational agent that leverages Retrieval-Augmented Generation (RAG) and web scraping techniques to provide accurate, up-to-date responses focused on academic research. Our system combines multiple academic paper sources, with dynamic web scraping capabilities to create a comprehensive knowledge base. The agent uses vector similarity search and can handle both general queries and website-specific information retrieval. We demonstrate how this approach addresses common limitations of traditional language models, such as outdated information and hallucinations, while providing targeted academic research assistance.
+In this paper, we present a conversational agent that leverages Retrieval-Augmented Generation (RAG) and web scraping techniques to provide accurate, up-to-date responses focused on academic research. Our system combines academic paper sources, dynamic web scraping capabilities and a pre-fetched knowledge base to build comprehensive answers to deep questions. The agent uses vector similarity search for context on topics and can be configured to search for additional papers online. We demonstrate how this approach addresses common limitations of traditional large language models, such as outdated information and uninformed responses, while providing targeted academic research assistance. We also highlight possibilities on future improvement on the concept and impact it could have on future research.
 }
 
 %----------------------------------------------------------------------------------------
@@ -92,7 +92,11 @@ Many of the AI agents in use today do utilize web scraping and use the relevant 
 
 Our goal is to find a way for a simple agent to be more focused and, with that, far more precise in its findings for a specific topic, being able to speed up research and development to bring more relevant research papers to far more people.
 
-We will view how a simple use of pretrained models, combined with the use of external data, acquired through web scraping, can help us understand the possibilities of this view of the NLP landscape. This agent will aim to be far more focused, finding direct links to actual submitted papers without being outdated in its information
+We will view how a simple use of pretrained models, combined with the use of external data, acquired through web scraping, can help us understand the possibilities of this view of the NLP landscape. This agent will aim to be far more focused, finding direct links to actual submitted papers without being outdated in its information.
+
+We present a proof-of-concept model that demonstrates the potential of this approach, focusing on academic research. We will discuss the methodology, implementation details, and preliminary results of our model, which integrates RAG techniques with a knowledge base to provide far more informed answers.
+
+Further, this paper highlights the possible limitations of the current implementation and it's pipeline, suggesting future improvements and directions, while also presenting a simple query and results, proving the impact such an agent could have further down the line, possibly more finely implemented and fine-tuned.
 %------------------------------------------------
 \section*{Related work}
 The development of conversational agents with Retrieval-Augmented Generation (RAG) has been a growing area of research, with the aim of improving response accuracy by integrating external knowledge sources. This section reviews existing studies that have contributed to this field.
@@ -107,95 +111,69 @@ The concept of leveraging web-scraped data through RAG was explored by Kanataria
 
 \section*{Methodology}
 
-In the sample work of our proof-of-concept model setup, the focus was mainly on the various resources and ways of implementing them. We've managed to group together and take use of many knowledge bases of academic research and compile the into the sample RAG pipeline that manages to access these papers in a keyword fashion and give answers enriched with these resources.
-
-\subsection*{Papers, resources and fetching}
-
-In implementing many of these papers, that our python script fetches, they are then converted into vectors, and chosen based on similarity, using the FAISS library. There are many ways of obtaining academic papers that have been found and in turn implement in the test of the capabilities of the pipeline.
-
-Many of the papers are possible to be obtained and have public API interfaces that gives much leeway in what and in what way we search.
-
-Popular and massive academic libraries such as Arxiv and Semantic Scholar already have available python libraries allowing us the seamlessly implement them and their resources into our project. While other sites such as GoogleScholar and CORE have publicly open API interfaces still making it possible to quickly fetch the data.
-
-While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping. Integrating the Playwright library and some simple web scraping methods, makes it possible to also implement these papers into the vectorization of this data.
-
-\subsection*{Vectorization and FAISS}
-The vectorization of the data is done using the FAISS library, which allows us to efficiently search and retrieve similar papers based on the keywords given in the query.
-
-\subsection*{Models, embeddings and similarity}
-
-While the baseline implementation only included simple and one model testing, it is important to highlight the different methods that are important in this situation and context.
-
-The embedding model is also an aspect not that much highlighted in our testing case, but something to be researched upon further, given the importance of our RAG data
-
-Our implementation also scores different specific hyperparameters that may be important to find the difference between.
-
-For example the amount of the papers being fetched from remote resources are currently limited, to highlight rapid development of the model pipeline. While the amount currently is very much useful to be low, it is an important resource for our model that should be analyzed further and it's importance to the final result.
-
-Similarly to the amount of papers being fetched, the k parameter in the FAISS vectorization is something that could massively impact the result and effectiveness of the data being implement to our answers . The k parameter is the amount of papers that are being fetched from the vectorized data and used to answer the question. This is something that could be further analyzed and tested, as it is a very important part of the pipeline.
-
-\subsection*{Conversational agent and the pipeline}
-The conversational agent is implemented using the LangChain library, which allows us to easily create a pipeline that can handle the queries and return the answers based on the vectorized data.
-
-\section*{Methodology - Anja}
-
 \subsection*{Pipeline overview}
-Our proposed method starts with building a database by collecting suitable articles from different sources. These documents are then turned into vectors and selected based on how similar they are, using FAISS and sentence-transformers. We also check their hashes to avoid adding duplicates. After that, we retrieve the most relevant documents by using a similarity score or threshold. The selected articles are added as context to a pre-designed system template, which is then fed to a large language model to get the final answer. More details of our approach are explained in the following sections.
+Our proposed method starts with building a database by collecting suitable articles from different sources. These documents are then embedded into vectors and queried based on their similarity score, using FAISS \cite{douze2024faiss} and sentence-transformers. Document hashes are saved to a different file, to avoid adding duplicate entries. With this, we retrieve the most relevant documents using for our model. The selected articles are added as context to a pre-designed system template, which is then fed to a large language model to get the final answer. The details of our approach are explained in the following sections.
 
 \subsection*{Baseline Model Implementation}
-In the sample work of our proof-of-concept model setup, our focus was mainly on the various resources and ways of implementing them. There are many ways of obtaining academic papers that have been found and in turn implemented in the test of the capabilities of the pipeline. Many of the papers are possible to be obtained and have public API interfaces that give much leeway in how and what we search. Popular and massive academic libraries such as arXiv and Semantic Scholar already have available Python libraries allowing us to seamlessly implement them and their resources into our project. While other sites such as Google Scholar and CORE have publicly open API interfaces still making it possible to quickly fetch the data. While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping. Integrating the Playwright library and some simple web scraping methods makes it possible to also implement these papers into the vectorization of this data. In our approach, we used it to web scrape ResearchGate.
+During the work for the baseline implementation of our proof-of-concept model, our focus was mainly on the various resources and ways of implementing them. There are many ways of obtaining academic papers that have been found and in turn implemented in the test of the capabilities of the pipeline. Many of the papers can be obtained and have public API interfaces that give much leeway in how and what we search for. Popular and massive academic libraries such as arXiv and Semantic Scholar already have available Python libraries allowing us to seamlessly implement them and their resources into our project. While other sites such as Google Scholar and CORE have publicly open API interfaces, still making it possible to quickly fetch the data. While these resources are in fact readily available to us, some of the websites containing them were only available to be accessed through web scraping. Integrating the Playwright library and some simple web scraping methods makes it possible to also implement these papers into the vectorization of this data. In our approach, we used it to web scrape papers from ResearchGate.
 
-To store the articles, we first had to obtain some metadata, such as title, authors, year of publication, abstract and url. The latter could be used to access the page and read more about the article. We also filtered out the articles with empty abstract, as they did not offer enough information for us to evaluate them fairly. Since most of the models are trained on data before 2023, we decided to only keep the documents that were published in year 2023 or later.
+\subsubsection*{Document Storing and Retrieval}
 
-This being our first version of the model, the database was not yet set up, but documents were always fetched on the fly from all incorporated sources. With the help from the tutorials, we implemented the code that already contained document vectorization and FAISS library, as well as the baseline conversational agent with corresponding system prompt. 
+When storing the articles, we first have to obtain some metadata, such as the title, authors, year of publication, abstract and url. The latter could be used to access the page and read more about the article. During this, we also filter out the articles with empty abstracts, as they did not offer enough information for us to evaluate them fairly. Since most of the models are trained on data before 2023, we decided to only keep the documents that were published in year 2023 or later.
 
-When migrating our code to Arnes HPC, we stumbled upon some issues. The Playwright library had problems with permissions in terms of browser access, which is why we were not able to use it. We also realized that this specific website is not as useful as we thought, since it does not offer data about abstract, which is our most informative metadata. There were also issues with using Semantic Scholar, as the Python library resulted in calling SSL\_CERTIFICATE, which we again did not have access to. To obtain the relevant articles from Semantic Scholar, we had to run the code on our personal computers and transfer it to HPC via \texttt{scp} command.
+This being the first version of the model, the database was not yet set up, and documents were always fetched on the fly from all incorporated sources. In further iterations, we implemented the code that already contained document vectorization and FAISS library, as well as the baseline conversational agent with corresponding system prompt. 
+
+\subsubsection*{Issues and Limitations}
+
+While migrating the code to the Arnes HPC, there happened to be limitations. The Playwright library had problems with permissions in terms of browser access, which is why we were not able to use it's sources. We also concluded that this specific source was not as useful as we first thought, since it does not offer data about abstract, which is our most informative metadata. There were also issues with using Semantic Scholar, as the Python library resulted in calling SSL\_CERTIFICATE, which we did not have access to. To obtain the relevant articles from Semantic Scholar, we had to run the code on our personal computers and transfer it to HPC via \texttt{scp} command.
+
+\\
 
 We tested our baseline implementation by asking the model various questions. They did not have to be related to natural language processing, as the database was created temporarily for each run. The model took the question we posed as input and returned the answer, using the provided context from the fetched articles. The preliminary results were only made by subjective evaluation, and at the first glance, the model was returning meaningful and suitable results.
 
 \subsection*{Database}
 
+In this subsection, we will highlight two different approaches we took to build the database of articles, which were used as the RAG context to the agent. The first approach was based on keywords, while the second one focused on filtering by categories. We will also describe how we created the documents and loaded them into the database.
+
 \subsubsection*{Creation: papers, resources and fetching}
-\textbf{Building with keywords.} At first, our idea was to put together a database by selecting 241 keywords, related to the field of natural language processing, which were assembled beforehand. Then we queried the model with: first, chunks of keywords (grouped eg. 10 keywords with boolean OR into one query) and second, one by one. The documents were fetched from the same sources that we described earlier. With each query, we asked the model to find a maximum of 100 articles per source per keyword in order to enlarge the database as much as possible. After some time, we started having issues with the two APIs, as they did not permit the large number of queries that we were executing.
+\textbf{Building with keywords.} The first appraoch was to put together a database by selecting 241 keywords related to the field of natural language processing, which were assembled beforehand. We queried the model with: chunks of keywords (grouped by eg. 10 keywords with boolean OR into one query) and later, one by one. The documents were fetched from the same sources as described earlier. With each query, we attempted to find a maximum of 100 articles per source, per keyword, in order to enrich the database as much as possible. After some time, we document having issues with the two of the API endpoints, as they did denied the large number of queries that we were requesting.
 
 The database ended up consisting of around 17000 articles. Within first tests, the similarity when retrieving documents turned out to be poor and in addition were completely unrelated to the question asked. One of the possible reasons was that our database ended up being too noisy, as the method with keywords did not capture suitable articles for the goal academic field. We decided to take a different approach, which is described in the following text.
 \\
-\textbf{Building with category filtering.} Many of our previous sources did not have the ability to filter the articles by categories within the query, which is why we added some anew. Our main source this time was ACL, which contains papers from conferences in fields of natural language processing and linguistics. This provided us with around 15000 starting articles and the results improved immediately. Filtering by category was not necessary for ACL source, since the main field of study was self-explanatory. To satisfy the need, we also modified an existing source (arXiv) so that the appropriate category was embedded in the query. OpenAlex has also been added, as it is able to filter the articles by using concepts IDs. None of the listed retrievals were limited to a number of articles, they had, however, still to take the demand for abstract and suitable publication year into account. This got us a total of around 20000 articles.
-
-\subsection*{Document creation and database loading}
-The vectorization of the data is done using the FAISS library, which allows us to efficiently search and retrieve similar papers based on the keywords given in the query.
-
-The embedding model is also an aspect not that much highlighted in our testing case, but something to be researched upon further, given the importance of our RAG data.
-
-Our implementation also scores different specific hyperparameters that may be important to find the difference between.
-
-Similarly to the amount of papers being fetched, the k parameter in the FAISS vectorization is something that could massively impact the result and effectiveness of the data being implemented to our answers.
-
-The k parameter is the amount of papers that are being fetched from the vectorized data and used to answer the question.
-
-This is something that could be further analyzed and tested, as it is a very important part of the pipeline.
+\textbf{Building with category filtering.} Many of our previous sources did not have the ability to filter the articles by categories within the query, which is why we added some anew. Our main source this time was ACL, which contains papers from conferences in fields of natural language processing and linguistics. This provided us with around 15000 starting articles and the results improved immediately. Filtering by category was not necessary for ACL source, since the main field of study was already our main goal. To satisfy the need, we also modified an existing source (arXiv) so that the appropriate category was embedded in the query. OpenAlex has also been added as a source, as it is able to filter the articles by using concepts IDs. None of the listed retrievals were limited to a number of articles. They are, however, still to take into account the abstract and suitable publication year into account. This method got us a total of around 20000 articles.
 
 \subsection*{Retriever}
-...
+The retriever is the part of the pipeline that is responsible for fetching the relevant papers from the database based on the question posed. It uses the FAISS library to perform a similarity search on the vectorized data and returns the most relevant papers.
+
+Although the retriever is a simple part of the pipeline, it is very important for the overall performance of the model. The retriever is responsible for fetching the relevant papers from the database and providing them to the model as context for answering the question.
+
+Our implementation uses the FAISS library to perform a similarity search on the vectorized data and returns the most relevant papers based on the question posed. The retriever is also responsible for scoring the papers based on their relevance to the question, which is in this case done on simple similarity search. We've configured it as such so that it returns the top 4 most relevant papers it could find in the database. We've found this was a good number to use, as it provided enough context for the model to generate a relevant answer, while also not being too many papers to overwhelm the model with information. Given our model is comparatively small and not properly fine-tuned, increasing this number could prove to be detrimental to the performance, as context would be too large and could lead to hallucinations or irrelevant answers.
+
+Score treshold is not something we have quite considered in the pipeline. Given the physical limitations, the size of the context is something we have decided to keep constant, as letting it flactuate could lead to drasticly different results, which would be hard to analyze and compare.
+
+Possible uses of Maximal Marginal Relevance (MMR) in the retriever scoring could be a way to test improvements in the pipeline, but we've found the similarity helped us more importantly configure and tune the database and the context itself along with the prompt design, which is the next step in our implementation.
 
 \subsection*{Prompt Design and Choice of LLM}
 ...
 \subsection*{On-Demand Paper Fetching}
-practical use
+The ability of using keywords for searching for context that has been extensively noted in this paper so far. In reality, the keywords in question we're only actually used to find and fetch relevant papers from the internet, which were then stored in our database. Actual querying of the context was done based on the actual question, given we've felt the question itself is a better way to find relevant context, rather than simple keywords.
 
-The user can choose the option to fetch additional papers on demand....
+Given our final implementation of the pipeline actually used a proper database that was persisted to the disk, the keyword part of it was repurposed to be used as a way to find new papers, in case the user did not feel the existing database was sufficient for the question at hand. In this case, the keywords were used to search for new papers online, which were then added to the database and used as context for the question.
 
+While we did manually input the actual keywords themselves in our test cases, we do not expect anyone approaching this implementation to do so, at least not on a regular basis. For this purposes, we have added the keyBert \cite{grootendorst2020keybert} library to our pipeline, which is used to extract keywords from the question itself. This way, the user does not have to worry about finding the right keywords, as the model will automatically extract them from the question and use them to search for new papers online.
+
+While this solution was not properly tested, we do expect it to work well in practice, given the simplicity of the implementation and the fact that it is based on a well-known library that has been used in many other projects. Although it is important to mention, that this does leave in room for improvement, as the library itself has tuning that is available, which could significantly improve the quality of the context being fetched.
 
 \section*{Analysis}
-For the simple demonstration of the capabilities of running a model that incorporates RAG techniques with scientific papers, we have made a short testing suite based on some sample questions one could maybe pose when researching for a topic in an academic setting. Because the baseline implementation lacks proper testing and fine-tuning, while pinning the results against proper, in-use, online AI agents, we've appended to the query the following: "Answer the question shortly". In this way, the agents will respond in shorter answers more uniform to our baseline implementation, given that in the opposite case, we get rather large and formatted answers which do not quite align with our results for our baseline implementation.
+For the simple demonstration of the capabilities our model, using RAG techniques with scientific papers, we have made a short testing suite based on some sample questions one could maybe pose when researching for a topic in an academic setting. Because the baseline implementation lacks proper testing and fine-tuning, when pinning the results against proper, in-use, online AI agents, we've appended to the query the following: "Answer the question shortly". In this way, the agents will respond in shorter answers more uniform to our baseline implementation, given that in the opposite case, we get rather large and formatted answers which do not quite align with our results for our baseline implementation.
 
-We've constructed queries, each with some keywords attached to them, that our agent could search for proper context, and asked it the question in connection to the keywords.
+We've constructed queries, each with some keywords attached to them, such that our agent could search for proper context, and asked it the question in connection to the keywords.
 
-The testing agents, we're simply given the question, as stated above.
+The testing agents were simply given the question, as stated above.
 
-In testing it has shown that ChatGPT has given quite more consistent results and to the point answers than the agent Claude, while our implementation was quite similar to it in that regard.
+In testing, it has been shown that ChatGPT has given more consistent results that are more to the point, than the agent Claude; While our implementation was quite similar to it in that regard.
 
-The responses our agent pipeline has shown have exhibited similarities in how a student could write in his own seminar paper, which aligns with our goals of this proof of concept.
+The responses our agent pipeline has returned have exhibited similarities in how a student could write in his own seminar paper, which aligns with our goals of this proof of concept.
 The writing is formal and corresponds to the question and topics in hand, keeping the scope narrow while also giving the relevant answer.
 
 ChatGPT managed to give more complete answers most of the time, although it should be stated that the length of and openness of the question very much impacted the results of the answers received from our implementation, regularly surpassing the ChatGPT pretrained results.
@@ -224,7 +202,6 @@ Keep in mind that the question was posed to the other agents prefixed with "Answ
 
 \section*{Evaluation}
 
-
 Since the goal of this project is to assist students and academic staff with their research, we believe it’s important to include their feedback in the evaluation process. That’s why our evaluation is mainly experimental and focused on how real users interact with and judge the system.
 
 The evaluation of our model was mostly done through experiments that tested how well it performs in different settings. We focused on how helpful, clear, and relevant the model’s answers were, and we compared it to other AI models
@@ -234,7 +211,7 @@ The evaluation of our model was mostly done through experiments that tested how 
 
 This section presents a direct comparison between our model and other well-known conversational agents to better understand its strengths and weaknesses in academic research contexts. 
 
-A selection of responses from all four models (our two modes, ChatGPT, and Claude) for a subset of prompts is included in Appendix A.
+A selection of responses from all four models (our two model modes, ChatGPT, and Claude) for a subset of prompts is included in Appendix A.
 
 \subsubsection*{Evaluation Through User Feedback}
 
@@ -261,6 +238,8 @@ To complement the user-based evaluation, we included a qualitative comparison be
 
 \subsection*{Comparing and discussing different possible system prompts}
 In this section, we discuss the impact of different system prompts on the performance of our conversational agent.
+
+\subsection*{Discussing paper retrieval and their relevance}
 
 
 \section*{Results}
@@ -308,6 +287,8 @@ Use the Discussion section to objectively evaluate your work, do not just put pr
 %------------------------------------------------
 \section*{Future work}
 
+...
+
 Although it is clear that our model got significant help, it shows promising results of our findings - searching and integrating proper papers into the agent pipeline gives significant importance to answers that academics would expect.
 
 The next obvious step is to simply make the agent help himself, and automate the process of finding the keywords. Several testing suits should be made but simply extracting the keywords from a query, when none are given, is a clear first step in this implementation
@@ -320,6 +301,8 @@ Storing and thinking of better ways of analyzing these papers is also a proper v
 
 \section*{Conclusion}
 The conclusion.
+
+...
 
 %------------------------------------------------
 
@@ -548,6 +531,58 @@ RDF fundamentally changes how we think about data representation. Instead of sto
     \label{fig:question_6}
 \end{figure}
 
+\section*{Appendix C}
 
+\subsection*{Question: What are some recent papers published in Natural Language Processing domain?}
+
+\begin{itemize}
+  \item \textbf{Document 1:} \\
+  A Deeper (Autoregressive) Approach to Non-Convergent Discourse Parsing https://aclanthology.org/2023.emnlp-main.796/ (Similarity: 0.7283)
+  \item \textbf{Document 2:} \\
+  Documenting the Unwritten Curriculum of Student Research https://aclanthology.org/2024.teachingnlp-1.1/ (Similarity: 0.7751)
+  \item \textbf{Document 3:} \\
+  Termout: a tool for the semi-automatic creation of term databases https://aclanthology.org/2023.contents-1.2/ (Similarity: 0.8195)
+  \item \textbf{Document 4:} \\
+  Teaching LLMs at Charles University: Assignments and Activities https://aclanthology.org/2024.teachingnlp-1.9/ (Similarity: 0.8218)
+\end{itemize}
+
+\subsection*{Question: Why are transformers important?}
+
+\begin{itemize}
+  \item \textbf{Document 1:} \\
+  A Reasoning Paths Ranking Method for Reasoning Optimization of Small-scale Large Language Models https://aclanthology.org/2024.ccl-1.72/ (Similarity: 1.0017)
+  \item \textbf{Document 2:} \\
+  AutoPEFT: Automatic Configuration Search for Parameter-Efficient Fine-Tuning https://aclanthology.org/2024.tacl-1.29/ (Similarity: 1.0431)
+  \item \textbf{Document 3:} \\
+  Can Foundation Models Watch, Talk and Guide You Step by Step to Make a Cake? https://aclanthology.org/2023.findings-emnlp.824/ (Similarity: 1.1258)
+  \item \textbf{Document 4:} \\
+  Example-Driven Course Slides on Natural Language Processing Concepts https://aclanthology.org/2024.teachingnlp-1.2/ (Similarity: 1.1726)
+\end{itemize}
+
+\subsection*{Question: How would I use ML to reconstruct damaged artwork?}
+
+\begin{itemize}
+  \item \textbf{Document 1:} \\
+  Resolving Legalese: A Multilingual Exploration of Negation Scope Resolution in Legal Documents https://aclanthology.org/2024.lrec-main.1220/ (Similarity: 0.9462)
+  \item \textbf{Document 2:} \\
+  Using Machine Learning to Uncover the Semantics of Concepts: How Well Do Typicality Measures Extracted from a BERT Text Classifier Match Human Judgments of Genre Typicality? https://doi.org/https://doi.org/10.15195/v10.a3 (Similarity: 1.0578)
+  \item \textbf{Document 3:} \\
+  UFCNet: Unsupervised Network based on Fourier transform and Convolutional attention for Oracle Character Recognition https://aclanthology.org/2024.ml4al-1.11/ (Similarity: 1.1810)
+  \item \textbf{Document 4:} \\
+  A new machine-actionable corpus for ancient text restoration https://aclanthology.org/2024.ml4al-1.7/ (Similarity: 1.1844)
+\end{itemize}
+
+\subsection*{Question: What are good datasets for training sentiment analysis models?}
+
+\begin{itemize}
+  \item \textbf{Document 1:} \\
+  Evidentiality-aware Retrieval for Overcoming Abstractiveness in Open-Domain Question Answering https://aclanthology.org/2024.findings-eacl.130/ (Similarity: 0.8171)
+  \item \textbf{Document 2:} \\
+  Twenty Years of Machine-Learning-Based Text Classification: A Systematic Review https://doi.org/https://doi.org/10.3390/a16050236 (Similarity: 0.8523)
+  \item \textbf{Document 3:} \\
+  Catastrophic Forgetting in Deep Learning: A Comprehensive Taxonomy https://doi.org/https://doi.org/10.5753/jbcs.2024.3966 (Similarity: 0.8582)
+  \item \textbf{Document 4:} \\
+  MCECR: A Novel Dataset for Multilingual Cross-Document Event Coreference Resolution https://aclanthology.org/2024.findings-naacl.245/ (Similarity: 0.8713)
+\end{itemize}
 
 \end{document}
