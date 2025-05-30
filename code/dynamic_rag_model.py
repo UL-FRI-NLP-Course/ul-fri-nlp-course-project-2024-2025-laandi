@@ -19,7 +19,6 @@ class DynamicRAG:
         self.MODEL_NAME = "/d/hpc/projects/onj_fri/laandi/models/mistral-7b-v3"
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
-        print("loaded tokenizer")
 
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -34,7 +33,6 @@ class DynamicRAG:
             device_map="auto"
         )
 
-        print("loaded model")
         self.pipeline = pipeline(
             task="text-generation",
             model=self.model,
@@ -84,7 +82,7 @@ class DynamicRAG:
                 search_kwargs={"score_threshold": score_threshold}
             )
         elif k is not None:
-            print(f"Using top-k: {k}")
+            #print(f"Using top-k: {k}")
             retriever = vectorstore.as_retriever(
                 search_type="similarity",
                 k=k
@@ -113,9 +111,9 @@ class DynamicRAG:
             )
         else:
             raise ValueError("Either 'k' or 'score_threshold' must be provided.")
-        print(f"Found {len(docs_with_scores)} documents")
+        print(f"Found {len(docs_with_scores)} interesting documents:")
         for i, (doc, score) in enumerate(docs_with_scores):
-            print(f"Document {i+1}: {doc.metadata.get('title')} {doc.metadata.get('url')} (Similarity: {score:.4f})")
+            print(f"- {doc.metadata.get('title')}. Link: {doc.metadata.get('url')}")
 
     def query(self, question, keywords = None, searchNewPaper = False, treshold=False, printout_documents=True):
         vectorstore = papers_knowledgebase.load_vectorstore()
@@ -125,14 +123,15 @@ class DynamicRAG:
                 kw_model = KeyBERT()
                 keywords = kw_model.extract_keywords(question, keyphrase_ngram_range=(1, 2), top_n=5)
                 keywords = " ".join([kw[0] for kw in keywords])
-            documents = papers_knowledgebase.format_papers_into_documents(papers_knowledgebase.fetch_papers(keywords, researchgate=False))
+            documents = papers_knowledgebase.format_papers_into_documents(papers_knowledgebase.fetch_papers(query=keywords, researchgate=False))
             papers_knowledgebase.update_vectorstore(vectorstore, documents)
         if treshold:
             print(f"Using score threshold: {treshold}")
             answer = self.generate(question, vectorstore, score_threshold=treshold)
         answer = self.generate(question, vectorstore)
-        display_markdown(answer, raw=True)
+        #display_markdown(answer, raw=True)
+        print("Answer:", answer)
         if printout_documents:
-            print("Printing out documents:")
+            #print("Printing out documents:")
             self.printout_documents(vectorstore, question, k=3, score_threshold=treshold)
         return answer

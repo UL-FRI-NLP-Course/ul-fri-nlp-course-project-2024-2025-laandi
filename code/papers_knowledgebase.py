@@ -294,7 +294,7 @@ def decode_abstract(abstract_inverted_index):
 
 def fetch_openalex_papers(query: str, max_papers: int = 5):
     
-    url = (f"https://api.openalex.org/works?search:{query}")
+    url = (f"https://api.openalex.org/works?search={query}")
       
     try:
         # Search for concept ID - broader
@@ -425,16 +425,13 @@ def create_vectorstore(documents, persist_directory="./knowledgebase2"):
 
     # Save the vectorstore to the specified directory
     vectorstore.save_local(persist_directory)
-    print("stored to local")
     return vectorstore
 
 def load_vectorstore(persist_directory="./knowledgebase2"):
     embedding = EMBEDDING_MODEL
     if bool(os.listdir(persist_directory)):
-        print("returned true")
         vectorstore = FAISS.load_local(persist_directory, embedding, allow_dangerous_deserialization=True)
     else:
-        print("returned false")
         dummy_doc = Document(page_content="placeholder", metadata={})
         vectorstore = create_vectorstore([dummy_doc], persist_directory)
         print("New vectorstore created as it was not found.")
