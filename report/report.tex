@@ -155,7 +155,20 @@ Score treshold is not something we have quite considered in the pipeline. Given 
 Possible uses of Maximal Marginal Relevance (MMR) in the retriever scoring could be a way to test improvements in the pipeline, but we've found the similarity helped us more importantly configure and tune the database and the context itself along with the prompt design, which is the next step in our implementation.
 
 \subsection*{Prompt Design and Choice of LLM}
-...
+
+\subsubsection*{Prompt Design}
+
+Initially, we suspected that hallucinations in our model’s responses were caused by an inadequate system prompt. However, after testing various prompt structures, we realized that the primary issue lay in our initial noisy database (built using broad keyword searches), which often retrieved irrelevant papers. Despite this, we observed that different prompt designs still significantly influenced the model’s performance.
+
+Early experiments with longer, highly detailed system prompts proved counterproductive. These prompts included excessive instructions, which overwhelmed the model and led to inconsistent or not contextual responses. We found that shorter prompts which emphasize contextual grounding and academic tone gave us better results.
+
+\subsubsection*{Choice of LLM}
+
+For our project’s core language model, we selected Mistral 7B, an open-source transformer-based model designed for both high performance and efficiency. Mistral 7B stands out for its ability to outperform larger models such as Llama 2 13B across a variety of benchmarks, including reasoning, mathematics, and code generation, while maintaining a much smaller parameter count \cite{jiang2023mistral7b}.
+
+The model was integrated using the Hugging Face Transformers library and configured to generate responses of up to 8,192 tokens, which is particularly valuable for academic tasks that require detailed, context-rich answers. Additionally, the code connects the model to a LangChain `ConversationalRetrievalChain`\footnote{\url{https://python.langchain.com/api_reference/langchain/chains/langchain.chains.conversational_retrieval.base.ConversationalRetrievalChain.html}}, which combines conversational language modeling with document retrieval, allowing the system to answer questions based on the most relevant retrieved documents.
+
+
 \subsection*{On-Demand Paper Fetching}
 The ability of using keywords for searching for context that has been extensively noted in this paper so far. In reality, the keywords in question we're only actually used to find and fetch relevant papers from the internet, which were then stored in our database. Actual querying of the context was done based on the actual question, given we've felt the question itself is a better way to find relevant context, rather than simple keywords.
 

@@ -5,27 +5,27 @@ data = {
     'Question 2': {
         'Baseline + VectorStore': [9, 6, 3],
         'VectorStore + Fetch': [7, 5, 5],
-        'ChatGPT': [4, 6, 7],
+        'ChatGPT': [2, 6, 9],
     },
     'Question 3': {
         'Baseline + VectorStore': [2, 7, 9],
         'VectorStore + Fetch': [10, 6, 2],
-        'ChatGPT': [9, 4, 6],
+        'ChatGPT': [6, 5, 7],
     },
     'Question 4': {
         'Baseline + VectorStore': [13, 4, 1],
         'VectorStore + Fetch': [3, 8, 7],
-        'ChatGPT': [3, 6, 9],
+        'ChatGPT': [2, 6, 10],
     },
     'Question 5': {
         'Baseline + VectorStore': [11, 5, 2],
         'VectorStore + Fetch': [4, 6, 8],
-        'ChatGPT': [4, 7, 7],
+        'ChatGPT': [3, 7, 8],
     },
     'Question 6': {
         'Baseline + VectorStore': [5, 6, 7],
         'VectorStore + Fetch': [10, 5, 3],
-        'ChatGPT': [5, 6, 7],
+        'ChatGPT': [3, 7, 8],
     },
     'Question 7': {
         'Baseline + VectorStore': [3, 5, 10],
@@ -34,7 +34,7 @@ data = {
     }
 }
 
-# Sum counts for each answer across all questions
+# Sum counts for each Baseline + VectorStorecross all questions
 summary_counts = {
     'Baseline + VectorStore': np.array([0, 0, 0]),
     'VectorStore + Fetch': np.array([0, 0, 0]),
